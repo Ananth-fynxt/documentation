@@ -3,7 +3,26 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Nexxus',
   description: 'PSP Orchestration - Uniting classic payment trust with next-gen orchestration.',
-    themeConfig: {
+  vite: {
+    assetsInclude: ['**/*.splinecode', '**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.svg', '**/*.gif', '**/*.webp'],
+    build: {
+      assetsDir: 'assets',
+      rollupOptions: {
+        output: {
+          assetFileNames: (assetInfo) => {
+            // Preserve directory structure for assets referenced in markdown
+            const info = assetInfo.name.split('.')
+            const ext = info[info.length - 1]
+            if (/png|jpe?g|svg|gif|tiff|bmp|ico|splinecode/i.test(ext)) {
+              return `assets/${assetInfo.name}`
+            }
+            return `assets/${assetInfo.name}`
+          }
+        }
+      }
+    }
+  },
+  themeConfig: {
     logo: '/assets/icon.png',
     siteTitle: 'Nexxus',
     siteDescription: 'PSP Orchestration - Uniting classic payment trust with next-gen orchestration.',

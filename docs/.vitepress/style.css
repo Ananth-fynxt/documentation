@@ -7,6 +7,7 @@ spline-viewer {
   height: 100%;
   z-index: 0;
   pointer-events: auto;
+  display: none; /* Hidden by default, shown only on home page via JavaScript */
 }
 
 /* Allow pointer events to pass through main content to Spline viewer - only on home page */
@@ -42,4 +43,5 @@ img[alt="Nexxus Logo"] {
 .VPHomeHero .tagline {
   font-size: 1rem !important;
 }
+
 

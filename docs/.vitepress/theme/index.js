@@ -1,33 +1,58 @@
 import DefaultTheme from 'vitepress/theme'
 import '../style.css'
-import { onMounted, watch } from 'vue'
+import { onMounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vitepress'
 
 export default {
   ...DefaultTheme,
   setup() {
     const route = useRoute()
+    let splineViewer = null
+    let isInitialized = false
     
     const isHomePage = () => {
       return route.path === '/' || document.querySelector('.VPContent.is-home')
     }
     
-    const loadSplineViewer = () => {
-      if (!isHomePage()) {
-        // Remove Spline viewer if not on home page
-        const existingViewer = document.querySelector('spline-viewer')
-        if (existingViewer) {
-          existingViewer.remove()
-        }
+    const toggleSplineViewer = () => {
+      if (!splineViewer) return
+      
+      const isHome = isHomePage()
+      if (isHome) {
+        splineViewer.style.display = 'block'
+        document.body.classList.add('spline-active')
+      } else {
+        splineViewer.style.display = 'none'
+        document.body.classList.remove('spline-active')
+      }
+    }
+    
+    const initializeSplineViewer = () => {
+      if (isInitialized) {
+        toggleSplineViewer()
         return
       }
       
-      // Only add Spline viewer on home page
-      if (!document.querySelector('spline-viewer')) {
-        const splineViewer = document.createElement('spline-viewer')
+      // Check if Spline viewer already exists in DOM
+      splineViewer = document.querySelector('spline-viewer')
+      
+      if (!splineViewer) {
+        // Create Spline viewer only once
+        splineViewer = document.createElement('spline-viewer')
         splineViewer.setAttribute('url', '/assets/bg.splinecode')
-        document.body.appendChild(splineViewer)
+          document.body.appendChild(splineViewer)
+          const viewer = document.querySelector('spline-viewer'); 
+          if (viewer && viewer.shadowRoot) { 
+            const logo = viewer.shadowRoot.querySelector('#logo');
+            if (logo) {
+              logo.remove();
+              console.log("Logo removed!");
+            }
+          }
       }
+      
+      isInitialized = true
+      toggleSplineViewer()
     }
     
     onMounted(() => {
@@ -35,36 +60,50 @@ export default {
       if (!document.querySelector('script[src*="spline-viewer"]')) {
         const script = document.createElement('script')
         script.type = 'module'
-        script.src = 'https://unpkg.com/@splinetool/viewer@1.12.2/build/spline-viewer.js'
+        script.src = 'https://unpkg.com/@splinetool/viewer@latest/build/spline-viewer.js'
         document.head.appendChild(script)
         
-        // Wait for script to load, then create Spline viewer
+        // Wait for script to load, then initialize Spline viewer
         script.onload = () => {
-          loadSplineViewer()
+          nextTick(() => {
+            initializeSplineViewer()
+          })
         }
       } else {
         // Script already loaded
-        loadSplineViewer()
+        nextTick(() => {
+          initializeSplineViewer()
+        })
       }
       
-      // Watch for route changes
+      // Watch for route changes - optimized with debounce
+      let routeChangeTimeout
       watch(() => route.path, () => {
-        // Small delay to ensure DOM is updated
-        setTimeout(() => {
-          loadSplineViewer()
-        }, 100)
+        clearTimeout(routeChangeTimeout)
+        routeChangeTimeout = setTimeout(() => {
+          nextTick(() => {
+            toggleSplineViewer()
+          })
+        }, 50)
       })
       
-      // Also observe VPContent changes to catch navigation
+      // Observe VPContent class changes for home page detection - debounced
+      let observerTimeout
       const observer = new MutationObserver((mutations) => {
         // Only react if class changes on VPContent
-        const hasClassChange = mutations.some(mutation => 
+        const hasRelevantChange = mutations.some(mutation => 
           mutation.type === 'attributes' && 
           mutation.attributeName === 'class' &&
           mutation.target.classList?.contains('VPContent')
         )
-        if (hasClassChange) {
-          loadSplineViewer()
+        
+        if (hasRelevantChange && isInitialized) {
+          clearTimeout(observerTimeout)
+          observerTimeout = setTimeout(() => {
+            nextTick(() => {
+              toggleSplineViewer()
+            })
+          }, 50)
         }
       })
       
@@ -74,10 +113,23 @@ export default {
         observer.observe(appContainer, {
           attributes: true,
           attributeFilter: ['class'],
-          subtree: true
+          subtree: true,
+          childList: false
         })
       }
     })
   }
 }
 
+
+// const interval = setInterval(() => { 
+//   const viewer = document.querySelector('spline-viewer'); 
+//   if (viewer && viewer.shadowRoot) { 
+//     const logo = viewer.shadowRoot.querySelector('#logo'); 
+//     if (logo) { 
+//       logo.remove(); 
+//       console.log("Logo removed!"); 
+//       clearInterval(interval); 
+//     } 
+//   } 
+// }, 500); 
