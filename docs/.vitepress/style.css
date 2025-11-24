@@ -1,0 +1,45 @@
+/* Spline background scene - only on home page */
+spline-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: auto;
+}
+
+/* Allow pointer events to pass through main content to Spline viewer - only on home page */
+.VPContent.is-home {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Re-enable pointer events on interactive elements - only on home page */
+.VPContent.is-home a,
+.VPContent.is-home button,
+.VPContent.is-home input,
+.VPContent.is-home select,
+.VPContent.is-home textarea,
+.VPContent.is-home [role="button"],
+.VPContent.is-home [tabindex],
+.VPContent.is-home .VPNav,
+.VPContent.is-home .VPNav * {
+  pointer-events: auto;
+}
+
+/* Reduce hero image size while keeping round shape and shadow */
+img.VPImage.image-src,
+.VPHomeHero img,
+.VPHomeHero .image-container img,
+img[alt="Nexxus Logo"] {
+  width: 120px !important;
+  height: 120px !important;
+}
+
+/* Reduce tagline font size */
+.VPHomeHero .tagline {
+  font-size: 1rem !important;
+}
+

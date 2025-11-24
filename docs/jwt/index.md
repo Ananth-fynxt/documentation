@@ -1,0 +1,214 @@
+---
+title: Fynxt JWT Library
+description: JWT token generation and validation library for Java/Spring. Provides JWT token generation and validation capabilities with configurable signing keys.
+---
+
+# Fynxt JWT Library
+
+JWT token generation and validation library for Java/Spring. Provides JWT token generation and validation capabilities with configurable signing keys.
+
+## Quick Start
+
+### Add Dependency
+
+```gradle
+implementation("com.fynxt:jwt:<version>")
+```
+
+### Enable & Configure
+
+```yaml
+fynxt:
+  jwt:
+    enabled: true  # Defaults to true
+    issuer: "my-app"
+    audience: "my-api"
+    signing-key-id: "keyid-abc123"
+    refresh-signing-key-id: "refreshid-xyz789"
+    access-token-expiration: "PT1H"  # 1 hour (ISO-8601 format)
+    refresh-token-expiration: "P7D"  # 7 days (ISO-8601 format)
+```
+
+### Use It
+
+The library auto-configures all components. Just inject the JWT executor:
+
+```java
+@Autowired
+private JwtExecutor jwtExecutor;
+
+// Generate token
+JwtTokenRequest request = JwtTokenRequest.builder()
+    .subject("user123")
+    .claims(Map.of("role", "admin"))
+    .build();
+
+JwtTokenResponse response = jwtExecutor.generateToken(request);
+String token = response.getToken();
+
+// Validate token
+JwtValidationRequest validationRequest = JwtValidationRequest.builder()
+    .token(token)
+    .build();
+
+JwtValidationResponse validation = jwtExecutor.validateToken(validationRequest);
+if (validation.isValid()) {
+    String subject = validation.getSubject();
+    Map<String, Object> claims = validation.getClaims();
+}
+```
+
+## Overview
+
+The Fynxt JWT library provides JWT token generation and validation for Spring Boot applications. It follows the Spring Boot starter pattern and requires minimal configuration.
+
+### Key Features
+
+* **Auto-Configuration**: All components automatically configured when on the classpath
+* **Token Generation & Validation**: Generate and validate JWT tokens with signature verification
+* **Dual Token Support**: Separate configuration for access (1 hour) and refresh (7 days) tokens
+* **Flexible Configuration**: Per-request overrides or use default configuration
+* **HMAC-SHA256 Signing**: Configurable signing keys derived from key IDs
+
+See [Architecture](./architecture.md) for detailed information.
+
+## Configuration
+
+```yaml
+fynxt:
+  jwt:
+    enabled: true  # Defaults to true
+    issuer: "my-application"
+    audience: "my-api"
+    signing-key-id: "keyid-abc123"
+    refresh-signing-key-id: "refreshid-xyz789"
+    access-token-expiration: "PT1H"  # 1 hour (ISO-8601)
+    refresh-token-expiration: "P7D"  # 7 days (ISO-8601)
+```
+
+### Duration Format (ISO-8601)
+
+* `PT15M` - 15 minutes
+* `PT30M` - 30 minutes
+* `PT1H` - 1 hour
+* `P1D` - 1 day
+* `P7D` - 7 days
+* `P30D` - 30 days
+
+### Per-Request Overrides
+
+Override defaults per request:
+
+```java
+JwtTokenRequest request = JwtTokenRequest.builder()
+    .issuer("custom-issuer")
+    .audience("custom-audience")
+    .signingKeyId("custom-key-id")
+    .tokenType(TokenType.REFRESH)
+    .expiresAt(OffsetDateTime.now().plusDays(30))
+    .build();
+```
+
+## Usage Examples
+
+### Generate Access Token
+
+```java
+JwtTokenRequest request = JwtTokenRequest.builder()
+    .subject("user123")
+    .claims(Map.of("userId", "123", "role", "admin"))
+    .tokenType(TokenType.ACCESS)
+    .build();
+
+JwtTokenResponse response = jwtExecutor.generateToken(request);
+String token = response.getToken();
+```
+
+### Generate Refresh Token
+
+```java
+JwtTokenRequest request = JwtTokenRequest.builder()
+    .subject("user123")
+    .tokenType(TokenType.REFRESH)
+    .build();
+
+JwtTokenResponse response = jwtExecutor.generateToken(request);
+String refreshToken = response.getToken();
+```
+
+### Validate Token
+
+```java
+JwtValidationRequest request = JwtValidationRequest.builder()
+    .token(token)
+    .build();
+
+JwtValidationResponse response = jwtExecutor.validateToken(request);
+
+if (response.isValid()) {
+    String subject = response.getSubject();
+    Map<String, Object> claims = response.getClaims();
+} else {
+    String error = response.getErrorMessage();
+}
+```
+
+## API Reference
+
+### JwtExecutor
+
+Main service for JWT operations.
+
+* `generateToken(JwtTokenRequest)` - Generate a JWT token
+* `validateToken(JwtValidationRequest)` - Validate a JWT token
+
+### Token Types
+
+* **ACCESS** - Short-lived tokens (default: 1 hour)
+* **REFRESH** - Long-lived tokens (default: 7 days)
+
+## Best Practices
+
+### Signing Keys
+
+* Use unique key IDs per environment (dev, staging, prod)
+* Keep key IDs secure - don't expose in client-side code
+* Rotate keys periodically by updating key IDs
+* Use different keys for access and refresh tokens
+
+### Token Lifecycle
+
+* Keep access tokens short-lived (15 minutes to 1 hour)
+* Use refresh tokens for longer sessions (7-30 days)
+* Implement token refresh logic
+* Handle expiration gracefully
+
+### Security
+
+* Keep claims minimal - only necessary information
+* Don't store sensitive data (tokens are signed, not encrypted)
+* Always validate tokens server-side
+* Use HTTPS to prevent interception
+* Implement secure token storage (httpOnly cookies for web)
+
+## Troubleshooting
+
+### Token Generation Fails
+
+* Verify `fynxt.jwt.enabled` is not `false`
+* Check issuer, audience, and signing-key-id are configured
+* Ensure signing key ID is not empty
+* Check logs for specific error messages
+
+### Token Validation Fails
+
+* Verify token hasn't expired
+* Check issuer and audience match configuration
+* Ensure signing key ID matches generation key
+* Verify token format (three parts separated by dots)
+
+### Exceptions
+
+* `JwtTokenGenerationException` - Token generation failed (check cause for details)
+* `JwtSigningKeyException` - Signing key operation failed (verify key ID configuration)
+

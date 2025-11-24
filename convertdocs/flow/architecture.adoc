@@ -1,0 +1,40 @@
+== Architecture
+
+=== Auto-Configuration Sequence
+
+image::flow-autoconfig.png[Flow Auto-Configuration Sequence, 1000, align="center"]
+
+=== Flow Component Sequence
+
+The following diagram shows the sequence of creating and using Flow components:
+
+image::flow-sequence.png[Flow Component Sequence Diagram, 1200, align="center"]
+
+=== System Components
+
+[cols="30,70",options="header"]
+|===
+|Component |Purpose
+
+|`FlowTypeService`
+|Manages flow type entities - categories for organizing flows
+
+|`FlowActionService`
+|Manages flow action entities - defines actions with input/output schemas
+
+|`FlowTargetService`
+|Manages flow target entities - defines targets with credential schemas
+
+|`FlowDefinitionService`
+|Manages flow definition entities - combines actions and targets with code
+
+|`FlowModuleConfiguration`
+|Auto-configuration class - sets up all components when library is on classpath
+
+|`FlowSchemaInitializer`
+|Initializes database schema on application startup
+
+|`FlowJsonSchemaAndPayloadValidator`
+|Validates JSON payloads against JSON schemas
+|===
+
