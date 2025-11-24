@@ -6,7 +6,7 @@ hero:
   name: "Nexxus"
   text: "PSP Orchestration"
   tagline: Uniting classic payment trust with next-gen orchestration.
-  image: /assets/icon.png
+  # image: /assets/icon.png
   actions:
     - theme: brand
       text: DenoVM

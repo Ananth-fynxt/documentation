@@ -3,6 +3,10 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Nexxus',
   description: 'PSP Orchestration - Uniting classic payment trust with next-gen orchestration.',
+  head: [
+    ['link', { rel: 'icon', href: '/assets/icon.png' }],
+    ['link', { rel: 'apple-touch-icon', href: '/assets/icon.png' }]
+  ],
   vite: {
     assetsInclude: ['**/*.splinecode', '**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.svg', '**/*.gif', '**/*.webp'],
     build: {
@@ -22,7 +26,8 @@ export default defineConfig({
       }
     }
   },
-  themeConfig: {
+    themeConfig: {
+    
     logo: '/assets/icon.png',
     siteTitle: 'Nexxus',
     siteDescription: 'PSP Orchestration - Uniting classic payment trust with next-gen orchestration.',
