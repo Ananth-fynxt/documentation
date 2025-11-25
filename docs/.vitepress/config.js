@@ -92,8 +92,9 @@ export default defineConfig({
                 { text: 'Usage Examples', link: '/jwt/usage-examples' },
                 { text: 'API Reference', link: '/jwt/api-reference' },
                 { text: 'Best Practices', link: '/jwt/best-practices' },
-                { text: 'Troubleshooting', link: '/jwt/troubleshooting' },
-                { text: 'Architecture', link: '/jwt/architecture' }
+                { text: 'Architecture', link: '/jwt/architecture' },
+                { text: 'Troubleshooting', link: '/jwt/troubleshooting' }
+             
               ]
             }
           ]
