@@ -1,0 +1,55 @@
+---
+title: JWT Architecture
+description: Architecture and system components of the JWT library
+---
+
+# Architecture
+
+## JWT Token Flow
+
+The following diagram shows the sequence of JWT token generation and validation:
+
+![JWT Token Generation and Validation Sequence](../assets/jwt-sequence.png)
+
+## System Components
+
+| Component | Purpose |
+|-----------|---------|
+| `JwtExecutor` | Main service interface - provides token generation and validation methods |
+| `JwtExecutorImpl` | Implementation of JWT executor - handles token creation and verification |
+| `JwtProperties` | Configuration properties - stores issuer, audience, signing keys, and expiration settings |
+| `JwtModuleConfiguration` | Auto-configuration class - sets up all components when library is on classpath |
+| `JwtTokenRequest` | DTO for token generation requests - contains subject, claims, issuer, audience, etc. |
+| `JwtTokenResponse` | DTO for token generation responses - contains generated token and metadata |
+| `JwtValidationRequest` | DTO for token validation requests - contains token and optional overrides |
+| `JwtValidationResponse` | DTO for token validation responses - contains validation result and claims |
+| `TokenType` | Enum for token types - ACCESS or REFRESH |
+| `JwtTokenGenerationException` | Exception thrown when token generation fails |
+| `JwtSigningKeyException` | Exception thrown when signing key operations fail |
+
+## Token Generation
+
+1. Extract or use default values (issuer, audience, signing key ID, expiration)
+2. Generate HMAC-SHA256 signing key from key ID
+3. Build JWT with header, payload (claims), and signature
+4. Sign with HMAC-SHA256
+5. Return token with metadata
+
+## Token Validation
+
+1. Extract or use default values (issuer, audience, signing key ID)
+2. Generate the same HMAC-SHA256 signing key from key ID
+3. Verify signature and validate claims (issuer, audience, expiration)
+4. Return validation result with extracted claims
+
+## Signing Key Generation
+
+Signing keys are generated deterministically from key IDs:
+
+1. Key source: `"jwt-signing-key-{keyId}-fynxt-token-system"`
+2. SHA-256 hash
+3. Base64 encode
+4. Use as HMAC-SHA256 secret key
+
+The same key ID always produces the same signing key, enabling token validation across service instances.
+
