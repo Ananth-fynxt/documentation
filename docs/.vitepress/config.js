@@ -26,8 +26,11 @@ export default defineConfig({
       }
     }
   },
-    themeConfig: {
-    
+  themeConfig: {
+    outline: {
+      level: [2, 3],
+      label: 'On this page'
+    },
     logo: '/assets/icon.png',
     siteTitle: 'Nexxus',
     siteDescription: 'PSP Orchestration - Uniting classic payment trust with next-gen orchestration.',
@@ -45,40 +48,211 @@ export default defineConfig({
       { text: 'Backend Library', link: '/backend/' },
       { text: 'Frontend Library', link: '/frontend/' }
     ],
-    sidebar: [
-      {
-        text: 'Backend Library',
-        items: [
-          { text: 'Overview', link: '/backend/' },
-          {
-            text: 'DenoVM',
-            items: [
-              { text: 'Overview', link: '/denovm/' },
-              { text: 'Architecture', link: '/denovm/architecture' }
-            ]
-          },
-          {
-            text: 'Flow',
-            items: [
-              { text: 'Overview', link: '/flow/' },
-              { text: 'Architecture', link: '/flow/architecture' }
-            ]
-          },
-          {
-            text: 'JWT',
-            items: [
-              { text: 'Overview', link: '/jwt/' },
-              { text: 'Architecture', link: '/jwt/architecture' }
-            ]
-          }
-        ]
-      },
-      {
-        text: 'Frontend Library',
-        items: [
-          { text: 'Overview', link: '/frontend/' }
-        ]
-      }
-    ]
+    sidebar: {
+      '/backend/': [
+        {
+          text: 'Backend Library',
+          items: [
+            { text: 'Overview', link: '/backend/' },
+            {
+              text: 'DenoVM',
+              items: [
+                { text: 'Overview', link: '/denovm/' },
+                { text: 'Quick Start', link: '/denovm/quick-start' },
+                { text: 'Configuration', link: '/denovm/configuration' },
+                { text: 'Execution Modes', link: '/denovm/execution-modes' },
+                { text: 'Writing Scripts', link: '/denovm/writing-scripts' },
+                { text: 'Request & Response', link: '/denovm/request-response' },
+                { text: 'Architecture', link: '/denovm/architecture' },
+                { text: 'Limitations', link: '/denovm/limitations' },
+                { text: 'Troubleshooting', link: '/denovm/troubleshooting' }
+              ]
+            },
+            {
+              text: 'Flow',
+              items: [
+                { text: 'Overview', link: '/flow/' },
+                { text: 'Quick Start', link: '/flow/quick-start' },
+                { text: 'Configuration', link: '/flow/configuration' },
+                { text: 'Usage Examples', link: '/flow/usage-examples' },
+                { text: 'Services', link: '/flow/services' },
+                { text: 'Validation', link: '/flow/validation' },
+                { text: 'Best Practices', link: '/flow/best-practices' },
+                { text: 'Architecture', link: '/flow/architecture' },
+                { text: 'Troubleshooting', link: '/flow/troubleshooting' }
+              ]
+            },
+            {
+              text: 'JWT',
+              items: [
+                { text: 'Overview', link: '/jwt/' },
+                { text: 'Quick Start', link: '/jwt/quick-start' },
+                { text: 'Configuration', link: '/jwt/configuration' },
+                { text: 'Usage Examples', link: '/jwt/usage-examples' },
+                { text: 'API Reference', link: '/jwt/api-reference' },
+                { text: 'Best Practices', link: '/jwt/best-practices' },
+                { text: 'Troubleshooting', link: '/jwt/troubleshooting' },
+                { text: 'Architecture', link: '/jwt/architecture' }
+              ]
+            }
+          ]
+        }
+      ],
+      '/denovm/': [
+        {
+          text: 'Backend Library',
+          items: [
+            { text: 'Overview', link: '/backend/' },
+            {
+              text: 'DenoVM',
+              items: [
+                { text: 'Overview', link: '/denovm/' },
+                { text: 'Quick Start', link: '/denovm/quick-start' },
+                { text: 'Configuration', link: '/denovm/configuration' },
+                { text: 'Execution Modes', link: '/denovm/execution-modes' },
+                { text: 'Writing Scripts', link: '/denovm/writing-scripts' },
+                { text: 'Request & Response', link: '/denovm/request-response' },
+                { text: 'Architecture', link: '/denovm/architecture' },
+                { text: 'Limitations', link: '/denovm/limitations' },
+                { text: 'Troubleshooting', link: '/denovm/troubleshooting' }
+              ]
+            },
+            {
+              text: 'Flow',
+              items: [
+                { text: 'Overview', link: '/flow/' },
+                { text: 'Quick Start', link: '/flow/quick-start' },
+                { text: 'Configuration', link: '/flow/configuration' },
+                { text: 'Usage Examples', link: '/flow/usage-examples' },
+                { text: 'Services', link: '/flow/services' },
+                { text: 'Validation', link: '/flow/validation' },
+                { text: 'Best Practices', link: '/flow/best-practices' },
+                { text: 'Architecture', link: '/flow/architecture' },
+                { text: 'Troubleshooting', link: '/flow/troubleshooting' }
+              ]
+            },
+            {
+              text: 'JWT',
+              items: [
+                { text: 'Overview', link: '/jwt/' },
+                { text: 'Quick Start', link: '/jwt/quick-start' },
+                { text: 'Configuration', link: '/jwt/configuration' },
+                { text: 'Usage Examples', link: '/jwt/usage-examples' },
+                { text: 'API Reference', link: '/jwt/api-reference' },
+                { text: 'Best Practices', link: '/jwt/best-practices' },
+                { text: 'Troubleshooting', link: '/jwt/troubleshooting' },
+                { text: 'Architecture', link: '/jwt/architecture' }
+              ]
+            }
+          ]
+        }
+      ],
+      '/flow/': [
+        {
+          text: 'Backend Library',
+          items: [
+            { text: 'Overview', link: '/backend/' },
+            {
+              text: 'DenoVM',
+              items: [
+                { text: 'Overview', link: '/denovm/' },
+                { text: 'Quick Start', link: '/denovm/quick-start' },
+                { text: 'Configuration', link: '/denovm/configuration' },
+                { text: 'Execution Modes', link: '/denovm/execution-modes' },
+                { text: 'Writing Scripts', link: '/denovm/writing-scripts' },
+                { text: 'Request & Response', link: '/denovm/request-response' },
+                { text: 'Architecture', link: '/denovm/architecture' },
+                { text: 'Limitations', link: '/denovm/limitations' },
+                { text: 'Troubleshooting', link: '/denovm/troubleshooting' }
+              ]
+            },
+            {
+              text: 'Flow',
+              items: [
+                { text: 'Overview', link: '/flow/' },
+                { text: 'Quick Start', link: '/flow/quick-start' },
+                { text: 'Configuration', link: '/flow/configuration' },
+                { text: 'Usage Examples', link: '/flow/usage-examples' },
+                { text: 'Services', link: '/flow/services' },
+                { text: 'Validation', link: '/flow/validation' },
+                { text: 'Best Practices', link: '/flow/best-practices' },
+                { text: 'Architecture', link: '/flow/architecture' },
+                { text: 'Troubleshooting', link: '/flow/troubleshooting' }
+              ]
+            },
+            {
+              text: 'JWT',
+              items: [
+                { text: 'Overview', link: '/jwt/' },
+                { text: 'Quick Start', link: '/jwt/quick-start' },
+                { text: 'Configuration', link: '/jwt/configuration' },
+                { text: 'Usage Examples', link: '/jwt/usage-examples' },
+                { text: 'API Reference', link: '/jwt/api-reference' },
+                { text: 'Best Practices', link: '/jwt/best-practices' },
+                { text: 'Troubleshooting', link: '/jwt/troubleshooting' },
+                { text: 'Architecture', link: '/jwt/architecture' }
+              ]
+            }
+          ]
+        }
+      ],
+      '/jwt/': [
+        {
+          text: 'Backend Library',
+          items: [
+            { text: 'Overview', link: '/backend/' },
+            {
+              text: 'DenoVM',
+              items: [
+                { text: 'Overview', link: '/denovm/' },
+                { text: 'Quick Start', link: '/denovm/quick-start' },
+                { text: 'Configuration', link: '/denovm/configuration' },
+                { text: 'Execution Modes', link: '/denovm/execution-modes' },
+                { text: 'Writing Scripts', link: '/denovm/writing-scripts' },
+                { text: 'Request & Response', link: '/denovm/request-response' },
+                { text: 'Architecture', link: '/denovm/architecture' },
+                { text: 'Limitations', link: '/denovm/limitations' },
+                { text: 'Troubleshooting', link: '/denovm/troubleshooting' }
+              ]
+            },
+            {
+              text: 'Flow',
+              items: [
+                { text: 'Overview', link: '/flow/' },
+                { text: 'Quick Start', link: '/flow/quick-start' },
+                { text: 'Configuration', link: '/flow/configuration' },
+                { text: 'Usage Examples', link: '/flow/usage-examples' },
+                { text: 'Services', link: '/flow/services' },
+                { text: 'Validation', link: '/flow/validation' },
+                { text: 'Best Practices', link: '/flow/best-practices' },
+                { text: 'Architecture', link: '/flow/architecture' },
+                { text: 'Troubleshooting', link: '/flow/troubleshooting' }
+              ]
+            },
+            {
+              text: 'JWT',
+              items: [
+                { text: 'Overview', link: '/jwt/' },
+                { text: 'Quick Start', link: '/jwt/quick-start' },
+                { text: 'Configuration', link: '/jwt/configuration' },
+                { text: 'Usage Examples', link: '/jwt/usage-examples' },
+                { text: 'API Reference', link: '/jwt/api-reference' },
+                { text: 'Best Practices', link: '/jwt/best-practices' },
+                { text: 'Troubleshooting', link: '/jwt/troubleshooting' },
+                { text: 'Architecture', link: '/jwt/architecture' }
+              ]
+            }
+          ]
+        }
+      ],
+      '/frontend/': [
+        {
+          text: 'Frontend Library',
+          items: [
+            { text: 'Overview', link: '/frontend/' }
+          ]
+        }
+      ]
+    }
   }
 })
