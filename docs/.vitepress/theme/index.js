@@ -39,7 +39,7 @@ export default {
       if (!splineViewer) {
         // Create Spline viewer only once
         splineViewer = document.createElement('spline-viewer')
-        splineViewer.setAttribute('url', '/assets/bg.splinecode')
+        splineViewer.setAttribute('url', '/documentation/assets/bg.splinecode')
           document.body.appendChild(splineViewer)
           const viewer = document.querySelector('spline-viewer'); 
           if (viewer && viewer.shadowRoot) { 
