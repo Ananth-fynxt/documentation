@@ -1,8 +1,3 @@
 node_modules
-.vitepress/cache
-.vitepress/dist
-.vitepress/temp
-.vitepress/temp-client
-.vitepress/temp-server
-.vitepress/temp-server-client
-.vitepress/temp-server-client
+docs/.vitepress/cache/
+docs/.vitepress/dist/
