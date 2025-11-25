@@ -32,7 +32,7 @@ export default defineConfig({
       level: [2, 3],
       label: 'On this page'
     },
-    logo: '/documentation/assets/icon.png',
+    logo: '/assets/icon.png',
     siteTitle: 'Nexxus',
     siteDescription: 'PSP Orchestration - Uniting classic payment trust with next-gen orchestration.',
     siteUrl: 'https://nexxus.com',
