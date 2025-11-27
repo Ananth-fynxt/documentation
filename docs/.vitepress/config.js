@@ -46,6 +46,7 @@ export default defineConfig({
     },
     nav: [
       { text: 'Home', link: '/' },
+      { text: 'API Documentation', link: '/psp/' },
       { text: 'Backend Library', link: '/backend/' },
       { text: 'Frontend Library', link: '/frontend/' }
     ],
@@ -252,6 +253,18 @@ export default defineConfig({
           text: 'Frontend Library',
           items: [
             { text: 'Overview', link: '/frontend/' }
+          ]
+        }
+      ],
+      '/psp/': [
+        {
+          text: 'PSP Transaction Flow',
+          items: [
+            { text: 'Overview', link: '/psp/' },
+            { text: 'Quick Start', link: '/psp/quick-start' },
+            { text: 'API Reference', link: '/psp/api-reference' },
+            { text: 'Error Handling', link: '/psp/error-handling' },
+            { text: 'Best Practices', link: '/psp/best-practices' }
           ]
         }
       ]
