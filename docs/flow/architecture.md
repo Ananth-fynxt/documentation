@@ -26,4 +26,10 @@ The following diagram shows the sequence of creating and using Flow components:
 | `FlowModuleConfiguration` | Auto-configuration class - sets up all components when library is on classpath |
 | `FlowSchemaInitializer` | Initializes database schema on application startup |
 | `FlowJsonSchemaAndPayloadValidator` | Validates JSON payloads against JSON schemas |
+| `DashboardServerStrategy` | Strategy interface for dashboard serving (same port vs separate port) |
+| `SamePortDashboardStrategy` | Serves dashboard via Spring MVC interceptors on same port |
+| `SeparatePortDashboardStrategy` | Serves dashboard via embedded Tomcat on separate port |
+| `DashboardResourceHandler` | Handles serving dashboard static resources (HTML, JS, CSS) |
+| `DashboardCorsFilter` | High-priority CORS filter for dashboard paths (ngrok/domain support) |
+| `DashboardSecurityConfiguration` | Configures Spring Security to permit dashboard paths |
 

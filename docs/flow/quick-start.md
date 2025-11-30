@@ -17,7 +17,23 @@ implementation("com.fynxt:lowcode-flow:<version>")
 fynxt:
   flow:
     enabled: true  # Defaults to true, can be disabled
+    dashboard:
+      enabled: true  # Dashboard enabled by default
+      # Optional: customize path and port
+      # path: /fynxt-flow-dashboard  # Default path
+      # port: null  # null = same port, or specify custom port
 ```
+
+## Access Dashboard
+
+Once your application starts, access the dashboard at:
+- **Default**: `http://localhost:{your-port}/fynxt-flow-dashboard`
+- **Custom path**: `http://localhost:{your-port}/{your-custom-path}`
+
+The dashboard is automatically configured with:
+- ✅ CORS support (works with ngrok and custom domains)
+- ✅ No authentication required
+- ✅ All assets properly served
 
 ## Use It
 

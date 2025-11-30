@@ -47,3 +47,16 @@ Manages flow definitions with code and configuration.
 * `delete(String id)` - Delete a flow definition
 * `list()` - List all flow definitions
 
+## Dashboard Action Controller
+
+The dashboard uses `/dashboard-action` endpoint to interact with Flow services.
+
+**Note:** This endpoint is automatically configured with:
+- CORS support (all origins allowed)
+- Security bypass (no authentication required)
+- Only accessible from dashboard server when using separate port
+
+Access the dashboard at: `http://localhost:{port}/fynxt-flow-dashboard`
+
+See [Dashboard Guide](./dashboard.md) for more information.
+

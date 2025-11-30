@@ -56,3 +56,44 @@ FlowDefinitionDto definition = FlowDefinitionDto.builder()
 FlowDefinitionDto created = flowDefinitionService.create(definition);
 ```
 
+## Using the Dashboard
+
+The dashboard provides a web UI for all flow management operations. No code required!
+
+### Access Dashboard
+
+1. Start your application
+2. Navigate to: `http://localhost:{your-port}/fynxt-flow-dashboard`
+3. Use the UI to create and manage flows
+
+### Dashboard Configuration
+
+**Default (same port):**
+```yaml
+fynxt:
+  flow:
+    dashboard:
+      enabled: true  # Default
+      # Runs on same port as application
+```
+
+**Custom path:**
+```yaml
+fynxt:
+  flow:
+    dashboard:
+      enabled: true
+      path: /my-dashboard  # Custom path
+```
+
+**Separate port:**
+```yaml
+fynxt:
+  flow:
+    dashboard:
+      enabled: true
+      port: 9000  # Separate port
+```
+
+See [Dashboard Guide](./dashboard.md) for detailed configuration and troubleshooting.
+

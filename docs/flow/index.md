@@ -19,6 +19,9 @@ The Fynxt Flow library provides a complete solution for managing lowcode flows i
 * **Validation**: JSON schema validation support for flow configurations
 * **Auditing**: Automatic entity auditing with timestamps
 * **Custom IDs**: Support for custom ID generation with prefixes
+* **Dashboard UI**: Built-in React dashboard for managing flows (default: `/fynxt-flow-dashboard`)
+* **Flexible Deployment**: Dashboard runs on same port by default, or separate port if configured
+* **CORS & Security**: Automatic CORS configuration and security bypass for dashboard paths
 
 ### Core Components
 
@@ -38,5 +41,25 @@ Represents the target destination or endpoint for a flow execution. Defines cred
 
 The main flow definition that combines FlowAction and FlowTarget with execution code and configuration.
 
-See [Architecture](./architecture.md) for detailed information.
+#### Dashboard
+
+Built-in web dashboard for managing flows. Provides a React-based UI for creating, editing, and managing flow types, actions, targets, and definitions.
+
+- Default path: `/fynxt-flow-dashboard`
+- Runs on same port as application by default
+- Automatic CORS configuration for ngrok/custom domains
+- No authentication required
+
+See [Dashboard Guide](./dashboard.md) for detailed information.
+
+## Quick Links
+
+* [Quick Start](./quick-start.md) - Get started in minutes
+* [Configuration](./configuration.md) - Configure Flow and Dashboard
+* [Dashboard](./dashboard.md) - Dashboard setup and usage
+* [Architecture](./architecture.md) - System architecture and components
+* [Services](./services.md) - Available services and APIs
+* [Usage Examples](./usage-examples.md) - Code examples
+* [Best Practices](./best-practices.md) - Recommended practices
+* [Troubleshooting](./troubleshooting.md) - Common issues and solutions
 
