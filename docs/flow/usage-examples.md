@@ -21,6 +21,7 @@ FlowTypeDto created = flowTypeService.create(flowType);
 FlowActionDto action = FlowActionDto.builder()
     .name("Process Payment")
     .flowTypeId("ftp001")
+    .steps("{\"webhook\",\"initiate\",\"redirect\"}")
     .inputSchema("{\"type\":\"object\",\"properties\":{\"amount\":{\"type\":\"number\"}}}")
     .outputSchema("{\"type\":\"object\",\"properties\":{\"transactionId\":{\"type\":\"string\"}}}")
     .build();
