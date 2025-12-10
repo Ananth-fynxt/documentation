@@ -252,7 +252,11 @@ export default defineConfig({
         {
           text: 'Frontend Library',
           items: [
-            { text: 'Overview', link: '/frontend/' }
+            { text: 'Overview', link: '/frontend/' },
+            {
+              text: 'Nexxus PSP Components',
+              link: '/frontend/nexxus'
+            }
           ]
         }
       ],
