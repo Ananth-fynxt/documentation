@@ -1,112 +1,34 @@
----
-title: Frontend Library Overview
-description: Frontend libraries and components for modern web applications
----
-
 # Frontend Library Overview
 
-Welcome to the Fynxt Frontend Library documentation. Our frontend libraries provide modern, reusable components and utilities for building responsive web applications.
+Welcome to the Fynxt Frontend documentation. Start here for Nexxus React components that provide plug-and-play PSP listing, selection, and configuration.
 
-## Available Frontend Libraries
+## Available Frontend Components
 
 <div class="library-cards">
   <div class="library-card">
-    <h2>React Components</h2>
+    <h2>Nexxus PSP Components</h2>
     <p class="library-description">
-      A comprehensive React component library built with TypeScript. 
-      Provides ready-to-use UI components for modern web applications.
+      Plug-and-play React components to list, select, and configure Payment Service Providers with Nexxus APIs.
     </p>
     <div class="library-features">
       <ul>
-        <li>TypeScript support</li>
-        <li>Fully customizable components</li>
-        <li>Accessible by default</li>
-        <li>Tree-shakeable bundle</li>
+        <li>Ready-to-use PSP listing UI</li>
+        <li>Built-in API integration</li>
+        <li>Themeable via Nexxus provider</li>
+        <li>Callback hooks for selection</li>
       </ul>
     </div>
     <div class="library-actions">
-      <a href="#" class="library-link">Coming Soon →</a>
-    </div>
-  </div>
-
-  <div class="library-card">
-    <h2>Vue.js Integration</h2>
-    <p class="library-description">
-      Vue.js components and composables for building interactive user interfaces. 
-      Optimized for performance and developer experience.
-    </p>
-    <div class="library-features">
-      <ul>
-        <li>Vue 3 Composition API</li>
-        <li>Reusable composables</li>
-        <li>Component library</li>
-        <li>TypeScript definitions</li>
-      </ul>
-    </div>
-    <div class="library-actions">
-      <a href="#" class="library-link">Coming Soon →</a>
-    </div>
-  </div>
-
-  <div class="library-card">
-    <h2>UI Component Suite</h2>
-    <p class="library-description">
-      A complete set of UI components including forms, tables, modals, and more. 
-      Built with modern CSS and JavaScript frameworks.
-    </p>
-    <div class="library-features">
-      <ul>
-        <li>Form components</li>
-        <li>Data tables</li>
-        <li>Modal dialogs</li>
-        <li>Theme customization</li>
-      </ul>
-    </div>
-    <div class="library-actions">
-      <a href="#" class="library-link">Coming Soon →</a>
+      <a href="/frontend/nexxus" class="library-link">View Documentation →</a>
     </div>
   </div>
 </div>
 
 ## Quick Start
 
-Frontend libraries are designed to work seamlessly with modern build tools and frameworks:
-
-1. **Install Package** - Use npm, yarn, or pnpm to install the library
-2. **Import Components** - Import the components you need
-3. **Customize & Use** - Customize styling and start building
-
-## Planned Features
-
-### React Components
-
-A comprehensive React component library with TypeScript support, providing ready-to-use UI components for modern web applications.
-
-**Key Capabilities:**
-- TypeScript-first development
-- Fully customizable components
-- Accessibility built-in
-- Optimized bundle size
-
-### Vue.js Integration
-
-Vue.js components and composables for building interactive user interfaces with optimal performance.
-
-**Key Capabilities:**
-- Vue 3 Composition API support
-- Reusable composables
-- Complete component library
-- Full TypeScript support
-
-### UI Component Suite
-
-A complete set of UI components including forms, tables, modals, and more, built with modern CSS and JavaScript.
-
-**Key Capabilities:**
-- Comprehensive form components
-- Advanced data tables
-- Modal and dialog components
-- Flexible theme system
+1. Install the packages: `npm install @nexxus/react @nexxus/psp @nexxus/psp-details`
+2. Wrap your app with `NexxusProvider` using `nexxusThemeSystem`
+3. Render the `PSP` component and handle `onPspCardClick`
 
 <style>
 .library-cards {
@@ -233,4 +155,3 @@ A complete set of UI components including forms, tables, modals, and more, built
   transform: translateX(4px);
 }
 </style>
-
