@@ -253,6 +253,26 @@ export default defineConfig({
             {
               text: 'Nexxus PSP Components',
               link: '/frontend/nexxus'
+            },
+            {
+              text: 'Theming',
+              link: '/frontend/nexxus-theming'
+            },
+            {
+              text: 'Transaction Rule',
+              link: '/frontend/transaction-rule'
+            },
+            {
+              text: 'Routing Rule',
+              link: '/frontend/routing-rule'
+            },
+            {
+              text: 'Risk Rule',
+              link: '/frontend/risk-rule'
+            },
+            {
+              text: 'Fee Rule',
+              link: '/frontend/fee-rule'
             }
           ]
         }
