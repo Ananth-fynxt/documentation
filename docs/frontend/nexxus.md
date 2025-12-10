@@ -2,7 +2,6 @@
 
 Plug-and-play React components to list, select, and configure PSPs (Payment Service Providers) using Nexxus APIs.
 
----
 
 ## Package List
 
@@ -34,6 +33,8 @@ import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
 </NexxusProvider>
 ```
 
+> 📖 For detailed theming documentation including design tokens, color palettes, typography, and semantic tokens, see the [Nexxus Theming Guide](./nexxus-theming.md).
+
 ---
 
 ## PSP Component Usage
@@ -44,6 +45,7 @@ import { PSP } from "@nexxus/psp";
 <PSP
   domain="https://crm-api.io"
   header={{ BRAND: "<your-id>" }}
+  flowTypeId='ftp_001'
   onPspCardClick={(pspData) => {
     console.log("Selected PSP:", pspData);
   }}
@@ -56,6 +58,7 @@ import { PSP } from "@nexxus/psp";
 | --- | --- | --- | --- |
 | `domain` | `string` | Yes | Base API domain (e.g., `https://crm-api.io`). |
 | `header` | `object` | No | Optional headers such as `BRAND` or auth tokens. |
+| `flowTypeId`  | `string` | Yes | Flow Type Id is required
 | `onPspCardClick` | `(psp) => void` | Yes | Fired when a PSP card is clicked; receives PSP data. |
 
 ### `onPspCardClick` payload
@@ -86,22 +89,8 @@ import { PSP } from "@nexxus/psp";
 
 The PSP component orchestrates these API calls in sequence:
 
-### 1) Get Flow Types
 
-`GET /api/v1/flow-types`
-
-Used to fetch available transaction flow types (e.g., PSP flows) and pick the relevant flow type id.
-
-```json
-[
-  {
-    "id": "ftp_psp_001",
-    "name": "PSP - update"
-  }
-]
-```
-
-### 2) Get PSPs
+### Get PSPs
 
 `GET /api/v1/psps`
 
@@ -119,7 +108,7 @@ Retrieves enabled PSPs to render as selectable cards.
 ]
 ```
 
-### 3) Get Flow Targets by Flow Type
+### Get Flow Targets by Flow Type
 
 `GET /api/v1/flow-types/{flowTypeId}/flow-targets`
 
@@ -151,6 +140,7 @@ export default function App() {
       <PSP
         domain="https://crm-api.io"
         header={{ BRAND: "your-brand-id" }}
+        flowTypeId='ftp_001'
         onPspCardClick={(psp) => {
           console.log("Selected PSP:", psp);
         }}
@@ -164,13 +154,21 @@ export default function App() {
 
 ## UI Preview
 
-Available PSPs list:
+### Enabled PSPs list:
+
+![Enabled PSPs](../assets/psp-component-1.png)
+
+### Available PSPs list:
 
 ![Available PSPs](../assets/psp-component.png)
 
-Enabled PSPs list:
+### Available PSPs Details Modal:
 
-![Enabled PSPs](../assets/psp-component-1.png)
+![Available PSPs Details](../assets/psp-component-2.png)
+
+### PSPs Configure Modal:
+
+![Available PSPs Details](../assets/psp-component-3.png)
 
 ---
 
@@ -298,6 +296,18 @@ Returns PSP metadata, credential schema, supported actions, and flow target info
 
 ## UI Preview
 
-Available PSPs list:
+### Available PSPs list:
 
 ![Available PSPs](../assets/psp-details.png)
+
+### Credentials Modal:
+
+![Available PSPs](../assets/psp-details-7.png)
+
+### Tabs:
+![Tabs PSPs](../assets/psp-details-1.png)
+![Tabs PSPs](../assets/psp-details-6.png)
+![Tabs PSPs](../assets/psp-details-2.png)
+![Tabs PSPs](../assets/psp-details-3.png)
+![Tabs PSPs](../assets/psp-details-4.png)
+![Tabs PSPs](../assets/psp-details-5.png)
