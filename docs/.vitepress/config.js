@@ -46,7 +46,13 @@ export default defineConfig({
     },
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'API Documentation', link: '/psp/' },
+      {
+        text: 'API Documentation',
+        items: [
+          { text: 'Nexxus', link: '/psp/' },
+          { text: 'Connxt', link: '/connxt/' }
+        ]
+      },
       { text: 'Backend Library', link: '/backend/' },
       { text: 'Frontend Library', link: '/frontend/' }
     ],
@@ -289,6 +295,17 @@ export default defineConfig({
             { text: 'API Reference', link: '/psp/api-reference' },
             { text: 'Error Handling', link: '/psp/error-handling' },
             { text: 'Best Practices', link: '/psp/best-practices' }
+          ]
+        }
+      ],
+      '/connxt/': [
+        {
+          text: 'Connxt API V2',
+          items: [
+            { text: 'Overview', link: '/connxt/' },
+            { text: 'Quick Start', link: '/connxt/quick-start' },
+            { text: 'API Reference', link: '/connxt/api-reference' },
+            { text: 'Error Handling', link: '/connxt/error-handling' }
           ]
         }
       ]
