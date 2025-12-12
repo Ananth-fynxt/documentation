@@ -97,5 +97,4 @@ NEW → CREATED → INITIATED → [PG_ACCEPTED | PG_REJECTED] → [SUCCESS | FAI
 - [Quick Start Guide](./quick-start.md) - Get started with Connxt API V2
 - [API Reference](./api-reference.md) - Complete API endpoint documentation
 - [Error Handling](./error-handling.md) - Common errors and solutions
-- [Best Practices](./best-practices.md) - Recommended implementation patterns
 

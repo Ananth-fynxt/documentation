@@ -106,6 +106,5 @@ Content-Type: application/json
 ## Next Steps
 
 - Read the [Complete API Reference](./api-reference.md) for detailed endpoint documentation
-- Review [Best Practices](./best-practices.md) for recommended implementation patterns
 - Check [Error Handling](./error-handling.md) for common issues and solutions
 
