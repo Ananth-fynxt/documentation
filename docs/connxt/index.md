@@ -97,4 +97,5 @@ NEW → CREATED → INITIATED → [PG_ACCEPTED | PG_REJECTED] → [SUCCESS | FAI
 - [Quick Start Guide](./quick-start.md) - Get started with Connxt API V2
 - [API Reference](./api-reference.md) - Complete API endpoint documentation
 - [Error Handling](./error-handling.md) - Common errors and solutions
+- [API Contract (Scalar UI)](https://api.connect-dev.fynxt.io/api-reference.html) - Live API contract for Connxt V2
 

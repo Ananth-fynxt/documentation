@@ -9,19 +9,32 @@ description: Common error scenarios and solutions for PSP transaction flows
 
 ### 1. Authentication Errors
 
-**401 Unauthorized**
+**401 Unauthorized** - Invalid X-ADMIN-TOKEN or X-SECRET-TOKEN
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "UNAUTHORIZED",
-    "message": "Invalid or expired authentication token"
-  }
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "401",
+  "message": "Invalid admin token",
+  "data": null
 }
 ```
 
-**Solution**: Refresh your access token using the refresh token endpoint.
+or
+
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "401",
+  "message": "Invalid secret token",
+  "data": null
+}
+```
+
+**Solution**: 
+- Verify the token is correct and not expired
+- For X-SECRET-TOKEN: Ensure the token matches the environment's secret token
+- For X-ADMIN-TOKEN: Verify the admin token is valid
 
 ### 2. Validation Errors
 
@@ -29,19 +42,14 @@ description: Common error scenarios and solutions for PSP transaction flows
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed",
-    "details": {
-      "field": "amount",
-      "message": "Amount must be positive"
-    }
-  }
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "400",
+  "message": "Amount is required",
+  "data": null
 }
 ```
 
-**Solution**: Review the error details and correct the request payload.
+**Solution**: Review the error message and correct the request payload. Ensure all required fields are present and valid.
 
 ### 3. Resource Not Found
 
@@ -49,15 +57,14 @@ description: Common error scenarios and solutions for PSP transaction flows
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "RESOURCE_NOT_FOUND",
-    "message": "Flow type not found"
-  }
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "404",
+  "message": "Environment not found",
+  "data": null
 }
 ```
 
-**Solution**: Verify the resource ID exists and you have access to it.
+**Solution**: Verify the resource ID exists and you have access to it. Check that you're using the correct environment ID or flow type ID.
 
 ### 4. No PSP Available
 
@@ -65,11 +72,10 @@ description: Common error scenarios and solutions for PSP transaction flows
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "NO_PSP_AVAILABLE",
-    "message": "No suitable PSP found for the given criteria"
-  }
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "404",
+  "message": "No suitable PSP found for the given criteria",
+  "data": null
 }
 ```
 
@@ -79,20 +85,35 @@ description: Common error scenarios and solutions for PSP transaction flows
 - Verify transaction criteria (amount, currency, country) match PSP capabilities
 - Check if PSPs are in maintenance mode
 - Review routing and risk rules
+- Consider currency conversion if no PSPs are available for the requested currency
 
 ### 5. Duplicate Transaction
 
-**409 Conflict**
+**400 Bad Request** (duplicate externalRequestId)
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "DUPLICATE_TRANSACTION",
-    "message": "Transaction with this externalRequestId already exists"
-  }
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "1936",
+  "message": "Transaction with external request ID 'ext_sd001' already exists. Existing transaction ID: ortxl8cL2eNhtRaL",
+  "data": null
 }
 ```
 
-**Solution**: Use a unique `externalRequestId` for each transaction or retrieve the existing transaction.
+**Solution**: Use a unique `externalRequestId` for each transaction or retrieve the existing transaction using the provided transaction ID.
+
+### 6. Insufficient Permissions
+
+**403 Forbidden**
+
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "403",
+  "message": "Insufficient permissions or scope",
+  "data": null
+}
+```
+
+**Solution**: Verify your token has the required permissions for the requested operation.
 

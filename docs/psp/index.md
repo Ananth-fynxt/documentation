@@ -19,29 +19,34 @@ This guide provides detailed instructions for implementing the Payment Service P
 
 ### Required Information
 
-- **Base URL**: Your Nexxus API endpoint (e.g., `https://api.nexxus.com`)
-- **API Version**: `/api/v1`
-- **Authentication Token**: JWT access token with appropriate scopes
-- **Brand ID**: Unique identifier for your brand
-- **Environment ID**: Unique identifier for your environment (e.g., `env_uat_001`, `env_prod_001`)
+- **Base URL**: Your Nexxus API endpoint (e.g., `http://localhost:8001` or production URL)
+- **API Version**: `/nexxus/v1`
+- **Authentication**: X-SECRET-TOKEN is required for all API endpoints
+
+### Authentication
+
+#### X-SECRET-TOKEN
+- **Header**: `X-SECRET-TOKEN: <secret-token>`
+- **Usage**: Required for all API endpoints (Flow Action, Request Fetch PSP, and Transaction APIs)
+- **Authentication**: Validates against environment secret token stored in database
+- **Context**: Automatically sets `brandId` and `environmentId` from the environment record
 
 ### Required Headers
 
 All API requests must include:
 
 ```
-Authorization: Bearer <your_jwt_token>
 Content-Type: application/json
+X-SECRET-TOKEN: <secret-token>
 ```
 
-For APIs that require brand/environment context:
+**Note**: `brandId` and `environmentId` are automatically extracted from the `X-SECRET-TOKEN` authentication context. You do not need to include these values in request bodies.
 
-```
-X-BRAND-ID: <your_brand_id>
-X-ENV-ID: <your_environment_id>
-```
+## Transaction Flow
 
-## Flow Diagram
+The PSP transaction flow consists of three main steps that enable external systems to process payments through the Nexxus platform.
+
+### High-Level Flow
 
 ![PSP Transaction Flow - High Level](../assets/psp-tnx-flow-high-level.svg)
 
@@ -49,12 +54,29 @@ X-ENV-ID: <your_environment_id>
 
 The diagram above illustrates the complete PSP transaction flow from the user's perspective, showing how external systems interact with the Nexxus API to process payments. The flow includes:
 
-1. **Get Flow Types** - Discover available payment flow types
-2. **Get Flow Actions** - Retrieve actions for the selected flow type
-3. **Fetch PSP List** - Get available payment providers with fees and input schema
-4. **Create Transaction** - Submit the payment transaction
+1. **Get Flow Actions** - Retrieve available flow actions for a specific flow type
+2. **Fetch PSP List** - Get available payment providers with fees and input schema
+3. **Create Transaction** - Submit and process the payment transaction
 
-For a detailed view of the API interactions, see the [Low-Level Flow Diagram](./api-reference.md#low-level-flow-diagram) in the API Reference.
+### Detailed API Flow
+
+![PSP Transaction Flow - Low Level](../assets/psp-tnx-flow-low-level.svg)
+
+**Detailed API Interactions**
+
+The diagram above shows the detailed sequence of API calls and internal processing steps. It illustrates:
+
+- **Step 1**: Retrieve flow actions for the selected flow type
+- **Step 2**: Complex PSP evaluation process including:
+  - Querying PSPs based on transaction criteria
+  - Calculating fees
+  - Applying currency conversion
+  - Retrieving flow target input schema
+  - Saving request data
+  - Returning response with inputSchema included
+- **Step 3**: Transaction creation and processing
+
+This detailed view helps developers understand the internal processing that occurs within the Nexxus API during each step.
 
 ## Quick Navigation
 

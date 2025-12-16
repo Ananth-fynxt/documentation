@@ -1,35 +1,34 @@
 ---
-title: PSP Transaction Flow - API Reference
-description: Complete API reference for PSP transaction flow endpoints
+title: Nexxus – CRM Integration API Documentation
+description: Complete API reference for Nexxus CRM Integration API endpoints
 ---
 
 # API Reference
 
-Complete reference documentation for all PSP transaction flow API endpoints.
+Complete reference documentation for all Nexxus CRM Integration API endpoints.
 
-## Low-Level Flow Diagram
+## Table of Contents
 
-![PSP Transaction Flow - Low Level](../assets/psp-tnx-flow-low-level.svg)
+1. [Authentication](#authentication)
+2. [Flow Action API](#1-flow-action-api) - Uses X-SECRET-TOKEN
+3. [Request Fetch PSP API](#2-request-fetch-psp-api) - Uses X-SECRET-TOKEN
+4. [Transaction API](#3-transaction-api) - Uses X-SECRET-TOKEN
 
-**Detailed API Interactions**
+---
 
-The diagram above shows the detailed sequence of API calls and internal processing steps. It illustrates:
+## Authentication
 
-- **Step 1**: Query flow types from the database
-- **Step 2**: Retrieve flow actions for the selected flow type
-- **Step 3**: Complex PSP evaluation process including:
-  - Querying PSPs based on transaction criteria
-  - Calculating fees
-  - Applying currency conversion
-  - Retrieving flow target input schema
-  - Saving request data
-  - Returning response with inputSchema included
+### X-SECRET-TOKEN
+- **Header**: `X-SECRET-TOKEN: <secret-token>`
+- **Usage**: Required for all API endpoints (Flow Action, Request Fetch PSP, and Transaction APIs)
+- **Authentication**: Validates against environment secret token stored in database
+- **Context**: Automatically sets `brandId` and `environmentId` from the environment record
 
-This detailed view helps developers understand the internal processing that occurs within the Nexxus API during each step.
+---
 
 ## Base URL
 
-All API endpoints are prefixed with `/api/v1`.
+All API endpoints are prefixed with `/nexxus/v1`.
 
 ## Common Response Format
 
@@ -38,22 +37,20 @@ All API responses follow this structure:
 **Success Response**:
 ```json
 {
-  "success": true,
-  "data": <response_data>,
-  "message": "Operation successful"
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "200",
+  "message": "Operation completed successfully",
+  "data": <response_data>
 }
 ```
 
 **Error Response**:
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Error description",
-    "details": {}
-  },
-  "message": "Operation failed"
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "<error_code>",
+  "message": "<error_message>",
+  "data": null
 }
 ```
 
@@ -70,242 +67,154 @@ All API responses follow this structure:
 
 ---
 
-## Authentication
+## 1. Flow Action API
 
-### Login
-
-Obtain JWT access token for API authentication.
-
-**Endpoint**: `POST /api/v1/auth/login`
-
-**Headers**:
+### Endpoint
 ```
+GET /nexxus/v1/flow-types/{flowTypeId}/flow-actions
+```
+
+### Headers
+```
+X-SECRET-TOKEN: <secret-token>
+Content-Type: application/json 
+```
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `flowTypeId` | string | Yes | Unique identifier of the flow type |
+
+### cURL Example
+```bash
+curl -X GET 'http://localhost:8001/nexxus/v1/flow-types/ftg_payment_001/flow-actions' \
+  --header 'X-SECRET-TOKEN: sec_nexxus_uat_123' \
+  --header 'Content-Type: application/json'
+```
+
+### Success Response (200 OK)
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "200",
+  "message": "Flow actions retrieved successfully",
+  "data": [
+    {
+      "id": "fat_deposit_001",
+      "name": "Deposit",
+      "steps": ["CREATED", "INITIATED", "PG_ACCEPTED"],
+      "flowTypeId": "ftg_payment_001",
+      "inputSchema": "{\"type\":\"object\",\"properties\":{\"amount\":{\"type\":\"number\"}}}",
+      "outputSchema": "{\"type\":\"object\",\"properties\":{\"status\":{\"type\":\"string\"}}}",
+      "createdAt": "2025-12-16T08:30:00",
+      "updatedAt": "2025-12-16T08:30:00",
+      "createdBy": "system",
+      "updatedBy": "system"
+    }
+  ]
+}
+```
+
+### Error Responses
+
+**400 Bad Request** - Invalid flow type ID
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "400",
+  "message": "Invalid flow type ID format",
+  "data": null
+}
+```
+
+**401 Unauthorized** - Invalid X-SECRET-TOKEN
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "401",
+  "message": "Invalid secret token",
+  "data": null
+}
+```
+
+---
+
+## 2. Request Fetch PSP API
+
+### Endpoint
+```
+POST /nexxus/v1/requests/fetch-psp
+```
+
+### Headers
+```
+X-SECRET-TOKEN: <secret-token>
 Content-Type: application/json
 ```
 
-**Request Body**:
+### Request Body
 ```json
 {
-  "username": "your_username",
-  "password": "your_password"
-}
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expiresIn": 3600
-  },
-  "message": "Authentication successful"
-}
-```
-
----
-
-## Step 1: Get Flow Types
-
-Retrieve all available flow types to identify the PSP identifier record.
-
-**Endpoint**: `GET /api/v1/flow-types`
-
-**Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Request**: No request body required
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "flow_type_001",
-      "name": "Payment",
-      "description": "Payment transaction flow",
-      "createdAt": "2024-01-15T10:30:00",
-      "updatedAt": "2024-01-15T10:30:00"
-    },
-    {
-      "id": "flow_type_002",
-      "name": "Refund",
-      "description": "Refund transaction flow",
-      "createdAt": "2024-01-15T10:30:00",
-      "updatedAt": "2024-01-15T10:30:00"
-    }
-  ],
-  "message": "Flow types retrieved successfully"
-}
-```
-
-**Response Fields**:
-- `id` (string): Unique identifier of the flow type (use this in Step 2)
-- `name` (string): Name of the flow type (e.g., "Payment", "Refund")
-- `description` (string): Description of the flow type
-- `createdAt` (datetime): Creation timestamp
-- `updatedAt` (datetime): Last update timestamp
-
-**Error Responses**:
-- `401 Unauthorized`: Invalid or missing authentication token
-- `500 Internal Server Error`: Server error
-
----
-
-## Step 2: Get Flow Actions
-
-Retrieve all flow actions associated with a specific flow type.
-
-**Endpoint**: `GET /api/v1/flow-types/{flowTypeId}/flow-actions`
-
-**Path Parameters**:
-- `flowTypeId` (string, required): The flow type ID obtained from Step 1
-
-**Headers**:
-```
-Authorization: Bearer <token>
-```
-
-**Example Request**:
-```
-GET /api/v1/flow-types/flow_type_001/flow-actions
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "flow_action_001",
-      "name": "Process Payment",
-      "description": "Process a payment transaction",
-      "flowTypeId": "flow_type_001",
-      "steps": [
-        {
-          "name": "validate",
-          "order": 1
-        },
-        {
-          "name": "execute",
-          "order": 2
-        }
-      ],
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "number"
-          },
-          "currency": {
-            "type": "string"
-          }
-        }
-      },
-      "outputSchema": {
-        "type": "object",
-        "properties": {
-          "transactionId": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          }
-        }
-      },
-      "createdAt": "2024-01-15T10:30:00",
-      "updatedAt": "2024-01-15T10:30:00"
-    }
-  ],
-  "message": "Flow actions retrieved successfully"
-}
-```
-
-**Response Fields**:
-- `id` (string): Unique identifier of the flow action (use this in Step 3)
-- `name` (string): Name of the flow action
-- `description` (string): Description of the flow action
-- `flowTypeId` (string): Associated flow type ID
-- `steps` (array): Execution steps for the flow action
-- `inputSchema` (object): JSON schema defining required input parameters
-- `outputSchema` (object): JSON schema defining expected output format
-- `createdAt` (datetime): Creation timestamp
-- `updatedAt` (datetime): Last update timestamp
-
-**Error Responses**:
-- `400 Bad Request`: Invalid flow type ID format
-- `401 Unauthorized`: Invalid or missing authentication token
-- `404 Not Found`: Flow type not found
-- `500 Internal Server Error`: Server error
-
----
-
-## Step 3: Fetch PSP List
-
-Retrieve a list of available Payment Service Providers (PSPs) based on transaction criteria.
-
-**Endpoint**: `POST /api/v1/requests/fetch-psp`
-
-**Headers**:
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-**Request Body**:
-```json
-{
-  "brandId": "brn_001",
-  "environmentId": "env_uat_001",
   "amount": 100.00,
   "currency": "USD",
-  "actionId": "flow_action_001",
+  "actionId": "fat_deposit_001",
   "country": "US",
   "customerId": "brand_customer_001",
   "customerTag": "premium",
-  "customerAccountType": "INDIVIDUAL",
-  "walletId": "wallet_001",
-  "routingRuleId": "routing_rule_001"
+  "customerAccountType": "INDIVIDUAL"
 }
 ```
 
-**Request Fields**:
-- `brandId` (string, required): Unique identifier of the brand
-- `environmentId` (string, required): Unique identifier of the environment
-- `amount` (decimal, required): Transaction amount (must be positive)
-- `currency` (string, required): Currency code in ISO 4217 format (e.g., "USD", "EUR")
-- `actionId` (string, required): Flow action ID obtained from Step 2
-- `country` (string, required): Country code in ISO 3166-1 alpha-2 format (e.g., "US", "GB")
-- `customerId` (string, required): Unique identifier of the customer
-- `customerTag` (string, required): Customer tag for categorization (e.g., "premium", "standard")
-- `customerAccountType` (string, required): Type of customer account (e.g., "INDIVIDUAL", "BUSINESS")
-- `walletId` (string, optional): Unique identifier of the wallet
-- `routingRuleId` (string, optional): Specific routing rule to use for PSP selection
-- `clientIpAddress` (string, read-only): Automatically extracted from request headers
+### Request Fields
 
-**Response** (200 OK):
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `amount` | number | Yes | Transaction amount (must be positive) |
+| `currency` | string | Yes | Currency code (ISO 4217 format) |
+| `actionId` | string | Yes | Unique identifier of the flow action |
+| `country` | string | Yes | Country code (ISO 3166-1 alpha-2) |
+| `customerId` | string | Yes | Unique identifier of the customer |
+| `customerTag` | string | Yes | Customer tag for categorization |
+| `customerAccountType` | string | Yes | Type of customer account |
+
+**Note**: `brandId` and `environmentId` are automatically extracted from the `X-SECRET-TOKEN` authentication context.
+
+### cURL Example
+```bash
+curl -X POST 'http://localhost:8001/nexxus/v1/requests/fetch-psp' \
+  --header 'X-SECRET-TOKEN: sec_nexxus_uat_123' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "amount": 100.00,
+    "currency": "USD",
+    "actionId": "fat_deposit_001",
+    "country": "US",
+    "customerId": "brand_customer_001",
+    "customerTag": "premium",
+    "customerAccountType": "INDIVIDUAL"
+  }'
+```
+
+### Success Response (200 OK)
 ```json
 {
-  "success": true,
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "200",
+  "message": "PSP fetched successfully",
   "data": {
     "requestId": "req_123456789",
     "psps": [
       {
-        "id": "psp_001",
-        "name": "Stripe Payment Gateway",
-        "description": "Stripe payment processing service",
-        "logo": "https://example.com/stripe-logo.png",
+        "id": "psp_7MwmzoMRKFhpip2yFVcePL8LPl",
+        "name": "SticPay",
+        "description": "SticPay Payment Gateway",
+        "logo": "https://example.com/logo.png",
         "brandId": "brn_001",
         "environmentId": "env_uat_001",
-        "flowActionId": "flow_action_001",
+        "flowActionId": "fat_deposit_001",
         "flowDefintionId": "flow_def_001",
         "currency": "USD",
-        "walletId": "wallet_001",
         "originalAmount": 100.00,
         "appliedFeeAmount": 2.50,
         "totalAmount": 102.50,
@@ -313,189 +222,377 @@ Content-Type: application/json
         "inclusiveFeeAmount": 2.50,
         "exclusiveFeeAmount": 0.00,
         "isFeeApplied": true,
-        "isConversionApplied": false,
-        "conversionFromCurrency": null,
-        "conversionToCurrency": null,
-        "conversionExchangeRate": null,
-        "conversionConvertedAmount": null,
         "flowTarget": {
-          "flowTargetId": "flow_target_001",
-          "inputSchema": "{\"type\":\"object\",\"properties\":{\"cardNumber\":{\"type\":\"string\"}}}"
+          "flowTargetId": "ftg_sticpay_001",
+          "inputSchema": "{\"type\":\"object\",\"properties\":{}}"
         }
       }
     ]
-  },
-  "message": "PSP fetched successfully"
-}
-```
-
-**Response Fields**:
-- `requestId` (string): Unique identifier for this request (use for transaction tracking)
-- `psps` (array): List of available PSPs with detailed information:
-  - `id` (string): PSP identifier (use this in Step 4)
-  - `name` (string): PSP name
-  - `description` (string): PSP description
-  - `logo` (string): URL to PSP logo
-  - `brandId` (string): Brand ID
-  - `environmentId` (string): Environment ID
-  - `flowActionId` (string): Flow action ID
-  - `flowDefintionId` (string): Flow definition ID
-  - `currency` (string): Currency code
-  - `walletId` (string): Wallet ID
-  - `originalAmount` (decimal): Original transaction amount
-  - `appliedFeeAmount` (decimal): Fee amount applied (null if no fee)
-  - `totalAmount` (decimal): Total amount including fees
-  - `netAmountToUser` (decimal): Net amount to user after fees (null if not applicable)
-  - `inclusiveFeeAmount` (decimal): Inclusive fee amount (null if not applicable)
-  - `exclusiveFeeAmount` (decimal): Exclusive fee amount (null if not applicable)
-  - `isFeeApplied` (boolean): Whether fees are applied
-  - `isConversionApplied` (boolean): Whether currency conversion is applied
-  - `conversionFromCurrency` (string, nullable): Source currency for conversion
-  - `conversionToCurrency` (string, nullable): Target currency for conversion
-  - `conversionExchangeRate` (decimal, nullable): Exchange rate used
-  - `conversionConvertedAmount` (decimal, nullable): Converted amount
-  - `flowTarget` (object): Flow target information:
-    - `flowTargetId` (string): Flow target ID (use this in Step 4)
-    - `inputSchema` (string): **JSON schema string for transaction payload** (use this to build `executePayload` in Step 4)
-
-**Error Responses**:
-- `400 Bad Request`: Invalid request data or validation error
-- `401 Unauthorized`: Invalid or missing authentication token
-- `403 Forbidden`: Requires EXTERNAL scope access
-- `404 Not Found`: No suitable PSP found for the given criteria
-- `500 Internal Server Error`: Server error
-
----
-
-## Step 4: Create Transaction
-
-Create a new transaction with the selected PSP.
-
-**Endpoint**: `POST /api/v1/transactions`
-
-**Headers**:
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-**Request Body**:
-```json
-{
-  "brandId": "brn_001",
-  "environmentId": "env_uat_001",
-  "requestId": "req_123456789",
-  "flowActionId": "flow_action_001",
-  "flowTargetId": "flow_target_001",
-  "pspId": "psp_001",
-  "walletId": "wallet_001",
-  "customerId": "brand_customer_001",
-  "customerTag": "premium",
-  "customerAccountType": "INDIVIDUAL",
-  "walletCurrency": "USD",
-  "transactionType": "PAYMENT",
-  "txnCurrency": "USD",
-  "txnAmount": 100.00,
-  "txnFee": 2.50,
-  "externalRequestId": "ext_req_001",
-  "executePayload": {
-    "cardNumber": "4111111111111111",
-    "expiryMonth": 12,
-    "expiryYear": 2025,
-    "cvv": "123",
-    "cardholderName": "John Doe"
-  },
-  "customData": {
-    "orderId": "order_12345",
-    "merchantReference": "ref_67890"
   }
 }
 ```
 
-**Request Fields**:
-- `brandId` (string, required): Brand ID
-- `environmentId` (string, required): Environment ID
-- `requestId` (string, optional): Request ID from Step 3 (for tracking)
-- `flowActionId` (string, required): Flow action ID from Step 2
-- `flowTargetId` (string, required): Flow target ID from Step 3 (`flowTarget.flowTargetId`)
-- `pspId` (string, required): PSP ID selected by the user from Step 3
-- `walletId` (string, optional): Wallet ID
-- `customerId` (string, required): Customer ID
-- `customerTag` (string, optional): Customer tag
-- `customerAccountType` (string, optional): Customer account type
-- `walletCurrency` (string, optional): Currency of the wallet
-- `transactionType` (string, optional): Type of transaction (e.g., "PAYMENT", "REFUND")
-- `txnCurrency` (string, required): Transaction currency (ISO 4217 format)
-- `txnAmount` (decimal, required): Transaction amount
-- `txnFee` (decimal, optional): Transaction fee amount
-- `externalRequestId` (string, optional): External system's request identifier (for idempotency)
-- `executePayload` (object, required): **Transaction payload matching the `inputSchema` from Step 3** (`flowTarget.inputSchema`)
-- `customData` (object, optional): Custom metadata associated with the transaction
+### Error Responses
 
-**Important**: The `executePayload` must conform to the JSON schema defined in the `inputSchema` field from Step 3 (`flowTarget.inputSchema`). Parse the JSON schema string and validate all required fields, data types, and formats before submitting.
-
-**Response** (200 OK):
+**400 Bad Request** - Invalid request data
 ```json
 {
-  "success": true,
-  "data": {
-    "txnId": "txn_123456789",
-    "version": 1,
-    "brandId": "brn_001",
-    "environmentId": "env_uat_001",
-    "requestId": "req_123456789",
-    "flowActionId": "flow_action_001",
-    "flowTargetId": "flow_target_001",
-    "flowDefinitionId": "flow_def_001",
-    "pspId": "psp_001",
-    "pspTxnId": null,
-    "walletId": "wallet_001",
-    "externalRequestId": "ext_req_001",
-    "customerId": "brand_customer_001",
-    "customerTag": "premium",
-    "customerAccountType": "INDIVIDUAL",
-    "walletCurrency": "USD",
-    "transactionType": "PAYMENT",
-    "status": "PENDING",
-    "txnCurrency": "USD",
-    "txnFee": 2.50,
-    "txnAmount": 100.00,
-    "receivedAmount": null,
-    "receivedCurrency": null,
-    "executePayload": {
-      "cardNumber": "4111111111111111",
-      "expiryMonth": 12,
-      "expiryYear": 2025,
-      "cvv": "123",
-      "cardholderName": "John Doe"
-    },
-    "customData": {
-      "orderId": "order_12345",
-      "merchantReference": "ref_67890"
-    },
-    "insertedByIpAddress": "192.168.1.1",
-    "updatedByIpAddress": "192.168.1.1",
-    "createdAt": "2024-01-15T10:30:00",
-    "updatedAt": "2024-01-15T10:30:00",
-    "createdBy": "system",
-    "updatedBy": "system"
-  },
-  "message": "Transaction created successfully"
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "400",
+  "message": "Amount is required",
+  "data": null
 }
 ```
 
-**Response Fields**:
-- `txnId` (string): Unique transaction identifier
-- `version` (integer): Transaction version number
-- `status` (string): Transaction status (e.g., "PENDING", "SUCCESS", "FAILED")
-- `pspTxnId` (string, nullable): PSP's transaction identifier (available after processing)
-- All other fields mirror the request fields
+**401 Unauthorized** - Invalid X-SECRET-TOKEN
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "401",
+  "message": "Invalid secret token",
+  "data": null
+}
+```
 
-**Error Responses**:
-- `400 Bad Request`: Invalid request data, validation error, or invalid status transition
-- `401 Unauthorized`: Invalid or missing authentication token
-- `403 Forbidden`: Insufficient permissions or scope
-- `404 Not Found`: Related resource (PSP, flow action, etc.) not found
-- `409 Conflict`: Duplicate transaction (if `externalRequestId` already exists)
-- `500 Internal Server Error`: Server error
+**404 Not Found** - No suitable PSP found
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "404",
+  "message": "No suitable PSP found for the given criteria",
+  "data": null
+}
+```
 
+---
+
+## 3. Transaction API
+
+### Endpoint
+```
+POST /nexxus/v1/transactions
+```
+
+### Headers
+```
+X-SECRET-TOKEN: <secret-token>
+Content-Type: application/json
+```
+
+### Request Body
+```json
+{
+  "flowActionId": "fat_deposit_001",
+  "flowTargetId": "ftg_sticpay_001",
+  "requestId": "req_OQBMcPQb1SpuPq2xs07mKeLTro",
+  "pspId": "psp_7MwmzoMRKFhpip2yFVcePL8LPl",
+  "externalRequestId": "ext_sd001",
+  "transactionType": "deposit",
+  "txnCurrency": "USD",
+  "txnFee": 2,
+  "txnAmount": 10,
+  "executePayload": {
+    "body": {
+      "order": {
+        "id": "1758818848508",
+        "money": {
+          "amount": 12,
+          "currency": "USD"
+        },
+        "crmData": {
+          "amount": 12,
+          "currency": "USD",
+          "conversionRate": 1
+        },
+        "timestamp": "1758818848508"
+      },
+      "customer": {
+        "id": "cust_001",
+        "firstName": "Premium",
+        "lastName": "Customer",
+        "email": "customer.a@example.com",
+        "phone": {
+          "phoneNumber": "1758818848508",
+          "countryCode": "91"
+        },
+        "address": {
+          "line1": "123 Main St",
+          "city": "San Francisco",
+          "state": "CA",
+          "zipCode": "94103",
+          "country": "US"
+        }
+      },
+      "language": "en",
+      "customAttributes": {}
+    }
+  }
+}
+```
+
+### Request Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `flowActionId` | string | Yes | Unique identifier of the flow action |
+| `flowTargetId` | string | Yes | Unique identifier of the flow target |
+| `requestId` | string | No | Request ID associated with this transaction |
+| `pspId` | string | Yes | Unique identifier of the Payment Service Provider |
+| `externalRequestId` | string | No | External request ID (must be unique) |
+| `transactionType` | string | No | Type of transaction (e.g., "deposit", "withdrawal") |
+| `txnCurrency` | string | No | Currency of the transaction (ISO 4217 format) |
+| `txnFee` | number | No | Transaction fee amount |
+| `txnAmount` | number | No | Transaction amount |
+| `executePayload` | object | No | Payload data for transaction execution |
+
+**Note**: `brandId` and `environmentId` are automatically extracted from the `X-SECRET-TOKEN` authentication context.
+
+### cURL Example
+```bash
+curl -X POST 'http://localhost:8001/nexxus/v1/transactions' \
+  --header 'X-SECRET-TOKEN: sec_nexxus_uat_123' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "flowActionId": "fat_deposit_001",
+    "flowTargetId": "ftg_sticpay_001",
+    "requestId": "req_OQBMcPQb1SpuPq2xs07mKeLTro",
+    "pspId": "psp_7MwmzoMRKFhpip2yFVcePL8LPl",
+    "externalRequestId": "ext_sd001",
+    "transactionType": "deposit",
+    "txnCurrency": "USD",
+    "txnFee": 2,
+    "txnAmount": 200,
+    "executePayload": {
+      "body": {
+        "order": {
+          "id": "1758818848508",
+          "money": {
+            "amount": 12,
+            "currency": "USD"
+          },
+          "crmData": {
+            "amount": 12,
+            "currency": "USD",
+            "conversionRate": 1
+          },
+          "timestamp": "1758818848508"
+        },
+        "customer": {
+          "id": "cust_001",
+          "firstName": "Premium",
+          "lastName": "Customer",
+          "email": "customer.a@example.com",
+          "phone": {
+            "phoneNumber": "1758818848508",
+            "countryCode": "91"
+          },
+          "address": {
+            "line1": "123 Main St",
+            "city": "San Francisco",
+            "state": "CA",
+            "zipCode": "94103",
+            "country": "US"
+          }
+        },
+        "language": "en",
+        "customAttributes": {}
+      }
+    }
+  }'
+```
+
+### Success Response (200 OK)
+
+**When transaction is successful:**
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "200",
+  "message": "Transaction created successfully",
+  "data": {
+    "txnId": "ortxlwzD0R7tUurZ",
+    "txnSuccess": true,
+    "txnMeta": {
+      "logs": {
+        "0": {
+          "level": "info",
+          "message": "Transaction processed successfully",
+          "timestamp": "2025-12-16T08:30:00.816Z"
+        }
+      },
+      "http": {
+        "0": {
+          "request": {
+            "url": "https://api.sticpay.com/rest_pay/pay",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            }
+          },
+          "response": {
+            "status": 200,
+            "headers": {},
+            "data": {}
+          },
+          "duration": 1330
+        }
+      }
+    },
+    "txnError": null,
+    "sessionUrl": "eyJfX3R5cGUiOiJzdWNjZXNzIiwiZGF0YSI6eyJuYXZpZ2F0aW9uIjp7InR5cGUiOiJyZWRpcmVjdCIsImNvbnRlbnRUeXBlIjoidXJsIiwidmFsdWUiOiJodHRwczovL3BheS5zdGljcGF5LmNvbS8xLjEvcGF5L2NvbnN1bWVfdG9rZW4vYWJjMTIzIn19"
+  }
+}
+```
+
+**When transaction fails:**
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "200",
+  "message": "Transaction created successfully",
+  "data": {
+    "txnId": "ortx0VyoJsQVWhLA",
+    "txnSuccess": false,
+    "txnMeta": {},
+    "txnError": "Output validation failed for step 'initiate': Schema validation failed: $: required property 'navigation' not found",
+    "sessionUrl": null
+  }
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `txnId` | string | Unique transaction identifier |
+| `txnSuccess` | boolean | Whether the transaction execution was successful |
+| `txnMeta` | object | Transaction metadata (logs, HTTP requests/responses) |
+| `txnError` | string | Error message if transaction failed (null if successful) |
+| `sessionUrl` | string | Session token URL (only present if transaction was successful) |
+
+### Error Responses
+
+**400 Bad Request** - Invalid request data or duplicate transaction
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "1936",
+  "message": "Transaction with external request ID 'ext_sd001' already exists. Existing transaction ID: ortxl8cL2eNhtRaL",
+  "data": null
+}
+```
+
+**401 Unauthorized** - Invalid X-SECRET-TOKEN
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "401",
+  "message": "Invalid secret token",
+  "data": null
+}
+```
+
+**403 Forbidden** - Insufficient permissions
+```json
+{
+  "timestamp": "2025-12-16T08:30:00Z",
+  "code": "403",
+  "message": "Insufficient permissions or scope",
+  "data": null
+}
+```
+
+---
+
+## Currency Conversion Handling
+
+**Important**: Currency conversion is handled by the CRM, not by Nexxus. Nexxus does not perform currency conversion internally.
+
+### Conversion Flow
+
+When a transaction is initiated with a currency that has no available PSPs, the CRM should handle currency conversion as follows:
+
+1. **Initial Request**: CRM sends a request to `/nexxus/v1/requests/fetch-psp` with the original currency and amount
+   - Example: `currency: "INR"`, `amount: 1000`
+
+2. **No PSP Available**: If Nexxus API returns an empty PSP list or no suitable PSPs are found for the requested currency
+
+3. **CRM Performs Conversion**: CRM converts the amount to an alternative currency using its own conversion service or exchange rates
+   - Example: Convert 1000 INR to USD → 14 USD (using current exchange rate)
+
+4. **Retry with Converted Currency**: CRM sends a new request to `/nexxus/v1/requests/fetch-psp` with the converted currency and amount
+   - Example: `currency: "USD"`, `amount: 14`
+
+5. **PSP Selection**: Nexxus API may return available PSPs for the converted currency
+
+### Example Scenario
+
+```
+Step 1: User initiates transaction
+  - Currency: INR
+  - Amount: 1000
+
+Step 2: CRM calls Nexxus API
+  POST /nexxus/v1/requests/fetch-psp
+  {
+    "currency": "INR",
+    "amount": 1000,
+    ...
+  }
+
+Step 3: Nexxus API Response
+  {
+    "requestId": "req_123",
+    "psps": []  // No PSPs available for INR
+  }
+
+Step 4: CRM performs currency conversion
+  - Exchange Rate: 1 USD = 71.43 INR
+  - Converted Amount: 1000 INR ÷ 71.43 = 14 USD
+
+Step 5: CRM retries with converted currency
+  POST /nexxus/v1/requests/fetch-psp
+  {
+    "currency": "USD",
+    "amount": 14,
+    ...
+  }
+
+Step 6: Nexxus API Response
+  {
+    "requestId": "req_456",
+    "psps": [
+      {
+        "id": "psp_001",
+        "currency": "USD",
+        "totalAmount": 14.50,  // Includes fees
+        ...
+      }
+    ]
+  }
+```
+
+### Best Practices
+
+- **Conversion Responsibility**: CRM is responsible for:
+  - Obtaining current exchange rates
+  - Performing the currency conversion calculation
+  - Handling conversion fees (if applicable)
+  - Retrying the request with converted values
+
+- **Transaction Creation**: When creating a transaction after currency conversion:
+  - Use the converted `currency` and `amount` values in the transaction request
+  - The `txnCurrency` and `txnAmount` fields should reflect the converted values
+  - Store the original currency and amount in `executePayload` or custom fields if needed for reference
+
+- **User Communication**: CRM should inform users when currency conversion is applied:
+  - Display both original and converted amounts
+  - Show the exchange rate used
+  - Indicate any conversion fees
+
+### Important Considerations
+
+- Nexxus API does not validate or verify conversion rates
+- Nexxus API does not store or track original vs. converted currencies
+- All fee calculations in Nexxus are based on the currency and amount provided in the request
+- CRM must ensure conversion accuracy and handle any discrepancies

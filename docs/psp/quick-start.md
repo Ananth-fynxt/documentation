@@ -9,68 +9,47 @@ This guide will walk you through the essential steps to implement PSP transactio
 
 ## Authentication
 
-Before making any API calls, you must obtain a JWT access token:
+The Nexxus API uses two types of authentication tokens:
 
-**Endpoint**: `POST /api/v1/auth/login`
-
-**Request**:
-```json
-{
-  "username": "your_username",
-  "password": "your_password"
-}
+### X-ADMIN-TOKEN
+Used for admin operations (Brand Create, Environment management):
+```
+X-ADMIN-TOKEN: <admin-token>
 ```
 
-**Response**:
-```json
-{
-  "success": true,
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expiresIn": 3600
-  },
-  "message": "Authentication successful"
-}
+### X-SECRET-TOKEN
+Used for transaction operations (Flow Action, Fetch PSP, Transaction):
+```
+X-SECRET-TOKEN: <secret-token>
 ```
 
-Use the `accessToken` in the `Authorization` header for all subsequent API calls.
+**Note**: The `X-SECRET-TOKEN` automatically provides `brandId` and `environmentId` context. You do not need to include these values in request bodies.
 
 ## Implementation Steps
 
-### Step 1: Get Flow Types
-
-Retrieve all available flow types:
-
-```bash
-GET /api/v1/flow-types
-Authorization: Bearer <token>
-```
-
-### Step 2: Get Flow Actions
+### Step 1: Get Flow Actions
 
 Get actions for a specific flow type:
 
 ```bash
-GET /api/v1/flow-types/{flowTypeId}/flow-actions
-Authorization: Bearer <token>
+GET /nexxus/v1/flow-types/{flowTypeId}/flow-actions
+X-SECRET-TOKEN: <secret-token>
+Content-Type: application/json
 ```
 
-### Step 3: Fetch Available PSPs
+### Step 2: Fetch Available PSPs
 
 Request available PSPs based on transaction criteria:
 
 ```bash
-POST /api/v1/requests/fetch-psp
-Authorization: Bearer <token>
+POST /nexxus/v1/requests/fetch-psp
+X-SECRET-TOKEN: <secret-token>
 Content-Type: application/json
 
 {
-  "brandId": "brn_001",
-  "environmentId": "env_uat_001",
   "amount": 100.00,
   "currency": "USD",
-  "actionId": "flow_action_001",
+  "actionId": "fat_deposit_001",
   "country": "US",
   "customerId": "brand_customer_001",
   "customerTag": "premium",
@@ -78,31 +57,39 @@ Content-Type: application/json
 }
 ```
 
-### Step 4: Create Transaction
+**Note**: `brandId` and `environmentId` are automatically extracted from the `X-SECRET-TOKEN`.
 
-**Note**: The `inputSchema` and `flowTargetId` are already included in Step 3's response (`flowTarget.inputSchema` and `flowTarget.flowTargetId`), so no additional API call is needed.
+### Step 3: Create Transaction
+
+**Note**: The `inputSchema` and `flowTargetId` are already included in Step 2's response (`flowTarget.inputSchema` and `flowTarget.flowTargetId`), so no additional API call is needed.
 
 Create and process the transaction:
 
 ```bash
-POST /api/v1/transactions
-Authorization: Bearer <token>
+POST /nexxus/v1/transactions
+X-SECRET-TOKEN: <secret-token>
 Content-Type: application/json
 
 {
-  "brandId": "brn_001",
-  "environmentId": "env_uat_001",
-  "flowActionId": "flow_action_001",
-  "flowTargetId": "flow_target_001",
-  "pspId": "psp_001",
-  "customerId": "brand_customer_001",
+  "flowActionId": "fat_deposit_001",
+  "flowTargetId": "ftg_sticpay_001",
+  "pspId": "psp_7MwmzoMRKFhpip2yFVcePL8LPl",
   "txnCurrency": "USD",
   "txnAmount": 100.00,
   "executePayload": {
-    "cardNumber": "4111111111111111",
-    "expiryMonth": 12,
-    "expiryYear": 2025,
-    "cvv": "123"
+    "body": {
+      "order": {
+        "id": "ORDER_123",
+        "money": {
+          "amount": 100,
+          "currency": "USD"
+        }
+      },
+      "customer": {
+        "id": "cust_001",
+        "email": "customer@example.com"
+      }
+    }
   }
 }
 ```
