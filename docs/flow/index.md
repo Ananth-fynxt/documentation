@@ -17,7 +17,7 @@ The Fynxt Flow library provides a complete solution for managing lowcode flows i
 * **JPA Integration**: Built-in Spring Data JPA repositories for all Flow entities
 * **Type Safety**: Strongly typed entities and DTOs with MapStruct mappers
 * **Validation**: JSON schema validation support for flow configurations
-* **Auditing**: Automatic entity auditing with timestamps
+* **Auditing**: Automatic entity auditing with timestamps (createdAt, updatedAt)
 * **Custom IDs**: Support for custom ID generation with prefixes
 * **Dashboard UI**: Built-in React dashboard for managing flows (default: `/fynxt-flow-dashboard`)
 * **Flexible Deployment**: Dashboard runs on same port by default, or separate port if configured

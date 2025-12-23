@@ -108,9 +108,7 @@ curl -X GET 'http://localhost:8001/nexxus/v1/flow-types/ftg_payment_001/flow-act
       "inputSchema": "{\"type\":\"object\",\"properties\":{\"amount\":{\"type\":\"number\"}}}",
       "outputSchema": "{\"type\":\"object\",\"properties\":{\"status\":{\"type\":\"string\"}}}",
       "createdAt": "2025-12-16T08:30:00",
-      "updatedAt": "2025-12-16T08:30:00",
-      "createdBy": "system",
-      "updatedBy": "system"
+      "updatedAt": "2025-12-16T08:30:00"
     }
   ]
 }

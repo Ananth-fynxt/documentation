@@ -5,6 +5,10 @@ description: Configuration options for DenoVM library
 
 # Configuration
 
+> **Note:** If you haven't set up the repository and dependency yet, please refer to the [Quick Start Guide](./quick-start.md) for Maven and Gradle setup instructions.
+
+## Configuration Properties
+
 | Property | Default | Description |
 |----------|---------|-------------|
 | `deno.vm.enabled` | `false` | Enable DenoVM service (required) |

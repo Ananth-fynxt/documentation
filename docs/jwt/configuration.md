@@ -5,6 +5,8 @@ description: Configuration options for JWT library
 
 # Configuration
 
+> **Note:** If you haven't set up the repository and dependency yet, please refer to the [Quick Start Guide](./quick-start.md) for Maven and Gradle setup instructions.
+
 ## Basic Configuration
 
 ```yaml
