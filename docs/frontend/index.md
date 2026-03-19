@@ -1,34 +1,168 @@
 # Frontend Library Overview
 
-Welcome to the Fynxt Frontend documentation. Start here for Nexxus React components that provide plug-and-play PSP listing, selection, and configuration.
+Welcome to the Fynxt Frontend documentation. Nexxus provides plug-and-play React components for managing PSPs, fees, risk rules, routing, transaction limits, and webhooks.
 
 ## Available Frontend Components
 
 <div class="library-cards">
   <div class="library-card">
-    <h2>Nexxus PSP Components</h2>
+    <h2>PSP Components</h2>
     <p class="library-description">
-      Plug-and-play React components to list, select, and configure Payment Service Providers with Nexxus APIs.
+      List, configure, and manage Payment Service Providers with built-in API integration.
     </p>
     <div class="library-features">
       <ul>
-        <li>Ready-to-use PSP listing UI</li>
-        <li>Built-in API integration</li>
-        <li>Themeable via Nexxus provider</li>
-        <li>Callback hooks for selection</li>
+        <li>PSP listing with configured / available sections</li>
+        <li>PSP configuration and credentials modals</li>
+        <li>PSP detail pages with tabs (Fees, Limits, Risk, Security)</li>
+        <li>Themeable via NexxusProvider</li>
       </ul>
     </div>
     <div class="library-actions">
-      <a href="/frontend/nexxus" class="library-link">View Documentation →</a>
+      <a href="/frontend/nexxus" class="library-link">View Documentation</a>
+    </div>
+  </div>
+
+  <div class="library-card">
+    <h2>Fee Component</h2>
+    <p class="library-description">
+      Create and manage fee rules with fixed and percentage components per PSP.
+    </p>
+    <div class="library-features">
+      <ul>
+        <li>Fee list with search and table view</li>
+        <li>Create / edit fee modals with validation</li>
+        <li>INCLUSIVE and EXCLUSIVE charge types</li>
+        <li>Multi-PSP and multi-country support</li>
+      </ul>
+    </div>
+    <div class="library-actions">
+      <a href="/frontend/fee-rule" class="library-link">View Documentation</a>
+    </div>
+  </div>
+
+  <div class="library-card">
+    <h2>Risk Rule Component</h2>
+    <p class="library-description">
+      Define risk rules with criteria-based blocking and alerting per PSP.
+    </p>
+    <div class="library-features">
+      <ul>
+        <li>DEFAULT and CUSTOMER rule types</li>
+        <li>BLOCK and ALERT actions</li>
+        <li>Customer tag and account-type criteria</li>
+        <li>Duration-based thresholds</li>
+      </ul>
+    </div>
+    <div class="library-actions">
+      <a href="/frontend/risk-rule" class="library-link">View Documentation</a>
+    </div>
+  </div>
+
+  <div class="library-card">
+    <h2>Routing Rule Component</h2>
+    <p class="library-description">
+      Configure payment routing with priority or weightage-based PSP selection.
+    </p>
+    <div class="library-features">
+      <ul>
+        <li>Priority and Weightage routing methods</li>
+        <li>Query builder for currency/country conditions</li>
+        <li>Drag-and-drop PSP ordering</li>
+        <li>Count, Amount, and Percentage rule types</li>
+      </ul>
+    </div>
+    <div class="library-actions">
+      <a href="/frontend/routing-rule" class="library-link">View Documentation</a>
+    </div>
+  </div>
+
+  <div class="library-card">
+    <h2>Transaction Limits Component</h2>
+    <p class="library-description">
+      Set min/max transaction limits per flow action, currency, country, and customer tag.
+    </p>
+    <div class="library-features">
+      <ul>
+        <li>Per-action deposit/withdrawal limits</li>
+        <li>Multi-country and customer tag filtering</li>
+        <li>Dynamic form based on flow actions</li>
+        <li>Table view with search</li>
+      </ul>
+    </div>
+    <div class="library-actions">
+      <a href="/frontend/transaction-rule" class="library-link">View Documentation</a>
+    </div>
+  </div>
+
+  <div class="library-card">
+    <h2>Webhook Component</h2>
+    <p class="library-description">
+      Manage webhook endpoints for transaction status notifications.
+    </p>
+    <div class="library-features">
+      <ul>
+        <li>SUCCESS, FAILURE, and NOTIFICATION status types</li>
+        <li>Configurable retry count (1-3)</li>
+        <li>Enable / disable per webhook</li>
+        <li>Create, edit, and delete modals</li>
+      </ul>
+    </div>
+    <div class="library-actions">
+      <a href="/frontend/webhook" class="library-link">View Documentation</a>
     </div>
   </div>
 </div>
 
 ## Quick Start
 
-1. Install the packages: `npm install @nexxus/react @nexxus/psp @nexxus/psp-details`
-2. Wrap your app with `NexxusProvider` using `nexxusThemeSystem`
-3. Render the `PSP` component and handle `onPspCardClick`
+1. Install packages:
+
+```bash
+npm install @nexxus/react @nexxus/psp
+```
+
+2. Wrap your app with `NexxusProvider`:
+
+```tsx
+import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
+
+function App() {
+  return (
+    <NexxusProvider value={nexxusThemeSystem}>
+      {/* your app */}
+    </NexxusProvider>
+  );
+}
+```
+
+3. Render any component:
+
+```tsx
+import { PSPComponent } from "@nexxus/psp";
+
+<PSPComponent
+  baseURL="https://api.example.com/nexxus/v1"
+  brand="your-brand-id"
+  environment="your-env-id"
+  flowTypeId="ftp_001"
+/>
+```
+
+## Package List
+
+| Package | npm | Description |
+| --- | --- | --- |
+| Theme & Provider | `@nexxus/react` | NexxusProvider, theme system, i18n |
+| PSP | `@nexxus/psp` | PSP listing, configuration, and details |
+| Fees | `@nexxus/fees-component` | Fee rule management |
+| Risk Rules | `@nexxus/risk-component` | Risk rule management |
+| Routing Rules | `@nexxus/routing-component` | Payment routing rules |
+| Transaction Limits | `@nexxus/transaction-component` | Transaction limit management |
+| Webhooks | `@nexxus/webhook-component` | Webhook management |
+| API Services | `@nexxus/api-services` | Shared API client and service layer |
+| Common Components | `@nexxus/common-component` | Shared UI primitives (Input, Select, etc.) |
+| Table | `@nexxus/table-component` | Shared table component |
 
 <style>
 .library-cards {
@@ -107,7 +241,7 @@ Welcome to the Fynxt Frontend documentation. Start here for Nexxus React compone
 }
 
 .library-features li::before {
-  content: "✓";
+  content: "\2713";
   position: absolute;
   left: 0;
   top: 0.75rem;
@@ -144,14 +278,5 @@ Welcome to the Fynxt Frontend documentation. Start here for Nexxus React compone
 .library-link:hover {
   color: var(--vp-c-brand-dark);
   gap: 0.75rem;
-}
-
-.library-link::after {
-  content: "→";
-  transition: transform 0.2s ease;
-}
-
-.library-link:hover::after {
-  transform: translateX(4px);
 }
 </style>

@@ -1,4 +1,4 @@
-# Fee Rule Component
+# Fee Component
 
 Plug-and-play React component to manage fee rules and pricing for PSPs using Nexxus APIs.
 
@@ -7,7 +7,7 @@ Plug-and-play React component to manage fee rules and pricing for PSPs using Nex
 ## Installation
 
 ```bash
-npm install @nexxus/fee-rule
+npm install @nexxus/fees-component
 ```
 
 ---
@@ -15,12 +15,14 @@ npm install @nexxus/fee-rule
 ## Basic Usage
 
 ```tsx
-import { FeeRule } from "@nexxus/fee-rule";
+import FeeComponent from "@nexxus/fees-component";
 
-<FeeRule
-  domain="https://crm-api.io"
-  header={{ BRAND: "<your-id>" }}
-/>;
+<FeeComponent
+  baseURL="https://api.example.com/nexxus/v1"
+  brand="your-brand-id"
+  environment="your-env-id"
+  flowTypeId="ftp_001"
+/>
 ```
 
 ---
@@ -29,8 +31,16 @@ import { FeeRule } from "@nexxus/fee-rule";
 
 | Prop | Type | Required | Description |
 | --- | --- | --- | --- |
-| `domain` | `string` | Yes | Base API domain (e.g., `https://crm-api.io`). |
-| `header` | `object` | No | Optional headers such as `BRAND` or auth tokens. |
+| `client` | `QueryClient` | No | Custom TanStack Query client. Uses internal client if omitted. |
+| `domain` | `string` | No | Base API domain. Alias for `baseURL`. |
+| `baseURL` | `string` | No | API base URL (e.g., `https://api.example.com/nexxus/v1`). |
+| `secretToken` | `string` | No | API authentication token. Sent as `X-SECRET-TOKEN` header. |
+| `header` | `Record<string, string>` | No | Custom headers (e.g., `{ 'X-BRAND-ID': '...' }`). |
+| `brand` | `string` | No | Brand identifier. Alias for `brandId`. |
+| `brandId` | `string` | No | Brand ID for API scoping. |
+| `environment` | `string` | No | Environment identifier. Alias for `environmentId`. |
+| `environmentId` | `string` | No | Environment ID for API scoping. |
+| `flowTypeId` | `string` | No | Flow type ID to scope fee rules. |
 
 ---
 
@@ -38,14 +48,16 @@ import { FeeRule } from "@nexxus/fee-rule";
 
 ```tsx
 import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
-import { FeeRule } from "@nexxus/fee-rule";
+import FeeComponent from "@nexxus/fees-component";
 
 export default function FeeRulePage() {
   return (
     <NexxusProvider value={nexxusThemeSystem}>
-      <FeeRule
-        domain="https://crm-api.io"
-        header={{ BRAND: "your-brand-id" }}
+      <FeeComponent
+        baseURL="https://api.example.com/nexxus/v1"
+        brand="your-brand-id"
+        environment="your-env-id"
+        flowTypeId="ftp_001"
       />
     </NexxusProvider>
   );
@@ -54,131 +66,47 @@ export default function FeeRulePage() {
 
 ---
 
-## API Integration Flow (handled internally)
+## Sub-Components
 
-The FeeRule component orchestrates these API calls:
+The package also exports individual building blocks:
 
-### Get Fees
-
-`GET /api/v1/fees`
-
-Retrieves all fee rules.
-
-```json
-{
-  "data": [
-    {
-      "id": "fee_001",
-      "name": "Standard Processing Fee",
-      "currency": "USD",
-      "chargeFeeType": "INCLUSIVE",
-      "flowActionName": "DEPOSIT",
-      "components": [
-        { "type": "FIXED", "amount": 0.30 },
-        { "type": "PERCENTAGE", "amount": 2.9 }
-      ],
-      "psps": [
-        { "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd", "name": "BridgerPay" }
-      ],
-      "createdAt": "2025-01-15T10:30:00",
-      "updatedAt": "2025-01-15T10:30:00"
-    }
-  ]
-}
-```
-
-### Get Fees by PSP
-
-`GET /api/v1/fees/psp/{pspId}`
-
-Retrieves fee rules for a specific PSP.
-
-```json
-{
-  "data": [
-    {
-      "name": "Process fees",
-      "currency": "USD",
-      "chargeFeeType": "INCLUSIVE",
-      "components": [{ "type": "FIXED", "amount": 10 }],
-      "psps": [{ "id": "psp_5SYGziwRArbxGDeRpWKgHVd6HE", "name": "SticPay" }]
-    }
-  ]
-}
-```
-
-### Create Fee Rule
-
-`POST /api/v1/fees`
-
-Creates a new fee rule.
-
-**Request Body:**
-
-```json
-{
-  "name": "Premium Processing Fee",
-  "currency": "USD",
-  "chargeFeeType": "EXCLUSIVE",
-  "flowActionName": "DEPOSIT",
-  "components": [
-    { "type": "FIXED", "amount": 0.50 },
-    { "type": "PERCENTAGE", "amount": 1.5 }
-  ],
-  "pspIds": ["psp_XM4A6OR9UGyikYRfKczNs0DzQd"]
-}
-```
-
-**Response:**
-
-```json
-{
-  "data": {
-    "id": "fee_002",
-    "name": "Premium Processing Fee",
-    "currency": "USD",
-    "chargeFeeType": "EXCLUSIVE",
-    "flowActionName": "DEPOSIT",
-    "components": [
-      { "type": "FIXED", "amount": 0.50 },
-      { "type": "PERCENTAGE", "amount": 1.5 }
-    ],
-    "psps": [{ "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd", "name": "BridgerPay" }],
-    "createdAt": "2025-01-15T10:30:00",
-    "updatedAt": "2025-01-15T10:30:00"
-  }
-}
-```
-
-### Update Fee Rule
-
-`PUT /api/v1/fees/{id}`
-
-Updates an existing fee rule.
-
-### Delete Fee Rule
-
-`DELETE /api/v1/fees/{id}`
-
-Deletes a fee rule.
+| Component | Description |
+| --- | --- |
+| `FeeList` | Table view of fees with search, create/edit/delete actions |
+| `FeeForm` | Form for creating or editing a fee rule |
+| `FeeModal` | Modal wrapper around `FeeForm` |
+| `CreateFeeModal` | Pre-configured modal for creating a fee |
+| `EditFeeModal` | Pre-configured modal for editing a fee |
+| `createFeeTableColumns` | Factory for table column definitions |
 
 ---
 
-## Fee Rule Object
+## Form Fields
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `id` | `string` | Unique identifier |
-| `name` | `string` | Rule name |
-| `currency` | `string` | Currency code (e.g., USD, EUR) |
-| `chargeFeeType` | `string` | Fee charge type: `INCLUSIVE`, `EXCLUSIVE` |
-| `flowActionName` | `string` | Transaction action: `DEPOSIT`, `WITHDRAW` |
-| `components` | `array` | Fee components |
-| `components[].type` | `string` | Component type: `FIXED`, `PERCENTAGE` |
-| `components[].amount` | `number` | Fee amount |
-| `psps` | `array` | Associated PSPs |
-| `createdAt` | `string` | Creation timestamp |
-| `updatedAt` | `string` | Last update timestamp |
+### Basic Information
+
+| Field | Type | Component | Validation |
+| --- | --- | --- | --- |
+| `name` | `string` | Input | Required, max 100 chars |
+| `flowActionId` | `string` | Select | Required. Options from Flow Action API. |
+| `chargeFeeType` | `'INCLUSIVE' \| 'EXCLUSIVE'` | Select | Required |
+| `currency` | `string` | Select | Required. Options from Currencies API. |
+| `countries` | `string[]` | MultiSelect | 1-50 items. Options from Countries API. |
+
+### Fee Details (dynamic rows, 1-10)
+
+| Field | Type | Component | Validation |
+| --- | --- | --- | --- |
+| `components[].type` | `'FIXED' \| 'PERCENTAGE'` | Select | Required. Max one of each type. |
+| `components[].amount` | `number` | NumberInput | Required. FIXED: 0-999,999,999. PERCENTAGE: 0-100. |
+| `components[].minValue` | `number` | NumberInput | PERCENTAGE only. Optional. 0-999,999,999. |
+| `components[].maxValue` | `number` | NumberInput | PERCENTAGE only. Optional. Must be > minValue. |
+
+### PSP Configuration
+
+| Field | Type | Component | Validation |
+| --- | --- | --- | --- |
+| `psps` | `string[]` | MultiSelect | 1-20 items. Depends on selected action + currency. |
 
 ---
 
@@ -215,36 +143,109 @@ Merchant receives: $100
 A fixed amount charged per transaction.
 
 ```json
-{
-  "type": "FIXED",
-  "amount": 0.30
-}
+{ "type": "FIXED", "amount": 0.30 }
 ```
 
 ### PERCENTAGE
 
-A percentage of the transaction amount.
+A percentage of the transaction amount, with optional min/max caps.
 
 ```json
 {
   "type": "PERCENTAGE",
-  "amount": 2.9
+  "amount": 2.9,
+  "minValue": 1.00,
+  "maxValue": 50.00
 }
 ```
 
 ---
 
-## Fee Calculation Example
+## API Integration (handled internally)
 
-For a $100 transaction with the following components:
-- Fixed: $0.30
-- Percentage: 2.9%
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `getFees` | `GET /fees` | List all fee rules |
+| `getFeeById` | `GET /fees/{id}` | Get fee by ID (for edit) |
+| `createFee` | `POST /fees` | Create a new fee rule |
+| `updateFee` | `PUT /fees/{id}` | Update an existing fee rule |
+| `deleteFee` | `DELETE /fees/{id}` | Delete a fee rule |
+| `getFlowActions` | `GET /flow-types/{flowTypeId}/flow-actions` | Load flow actions for the select |
+| `getCurrencies` | `GET /psps/currencies` | Load available currencies |
+| `getCountries` | `GET /psps/countries` | Load available countries |
+| `getPSPsByActionAndCurrency` | `GET /psps/{actionId}/ENABLED/{currency}` | Load PSPs filtered by action + currency |
 
+### Example API Payloads
+
+**Create Fee Request:**
+
+```json
+{
+  "name": "Premium Processing Fee",
+  "currency": "USD",
+  "chargeFeeType": "EXCLUSIVE",
+  "flowActionId": "fa_deposit_001",
+  "status": "ENABLED",
+  "components": [
+    { "type": "FIXED", "amount": 0.50 },
+    { "type": "PERCENTAGE", "amount": 1.5, "minValue": 1.00, "maxValue": 50.00 }
+  ],
+  "countries": ["US", "CA"],
+  "psps": [{ "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd" }]
+}
 ```
-Fixed Fee: $0.30
-Percentage Fee: $100 × 2.9% = $2.90
-Total Fee: $0.30 + $2.90 = $3.20
+
+**Fee Response:**
+
+```json
+{
+  "data": {
+    "id": "fee_002",
+    "name": "Premium Processing Fee",
+    "currency": "USD",
+    "chargeFeeType": "EXCLUSIVE",
+    "status": "ENABLED",
+    "components": [
+      { "type": "FIXED", "amount": 0.50 },
+      { "type": "PERCENTAGE", "amount": 1.5, "minValue": 1.00, "maxValue": 50.00 }
+    ],
+    "countries": ["US", "CA"],
+    "psps": [{ "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd", "name": "BridgerPay" }],
+    "createdAt": "2025-01-15T10:30:00",
+    "updatedAt": "2025-01-15T10:30:00"
+  }
+}
 ```
+
+---
+
+## Fee Rule Object
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Unique identifier |
+| `name` | `string` | Rule name |
+| `currency` | `string` | Currency code (e.g., USD, EUR) |
+| `chargeFeeType` | `'INCLUSIVE' \| 'EXCLUSIVE'` | Fee charge type |
+| `status` | `'ENABLED' \| 'DISABLED'` | Rule status |
+| `flowActionId` | `string` | Associated flow action |
+| `components` | `FeeComponent[]` | Fee components (FIXED / PERCENTAGE) |
+| `components[].type` | `'FIXED' \| 'PERCENTAGE'` | Component type |
+| `components[].amount` | `number` | Fee amount |
+| `components[].minValue` | `number?` | Min fee cap (PERCENTAGE only) |
+| `components[].maxValue` | `number?` | Max fee cap (PERCENTAGE only) |
+| `countries` | `string[]` | Applicable countries |
+| `psps` | `{ id, name }[]` | Associated PSPs |
+| `createdAt` | `string` | Creation timestamp |
+| `updatedAt` | `string` | Last update timestamp |
+
+---
+
+## i18n
+
+The fee component registers translations under the `fees` namespace. Supported languages: `en`, `es`, `ar`.
+
+Key sections: `fees.list.*`, `fees.form.*`, `fees.modals.*`, `fees.validation.*`, `fees.messages.*`.
 
 ---
 

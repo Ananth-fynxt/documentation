@@ -1,24 +1,24 @@
 # Nexxus PSP Components
 
-Plug-and-play React components to list, select, and configure PSPs (Payment Service Providers) using Nexxus APIs.
-
+Plug-and-play React components to list, configure, and manage PSPs (Payment Service Providers) using Nexxus APIs.
 
 ## Package List
 
 ```bash
-npm install @nexxus/react            # Theme provider
-npm install @nexxus/psp             # PSP listing & selection (with API integration)
-npm install @nexxus/psp-details     # PSP detail screens
-npm install @nexxus/transaction-rule
-npm install @nexxus/routing-rule
-npm install @nexxus/risk-rule
-npm install @nexxus/fee-rule
+npm install @nexxus/react                # Theme provider & i18n
+npm install @nexxus/psp                  # PSP listing, configuration & details
+npm install @nexxus/fees-component       # Fee rule management
+npm install @nexxus/risk-component       # Risk rule management
+npm install @nexxus/routing-component    # Payment routing rules
+npm install @nexxus/transaction-component # Transaction limit management
+npm install @nexxus/webhook-component    # Webhook management
+npm install @nexxus/api-services         # Shared API client (peer dependency)
 ```
 
 ## Installation
 
 ```bash
-npm install @nexxus/react @nexxus/psp @nexxus/psp-details
+npm install @nexxus/react @nexxus/psp
 ```
 
 ## Global Theme Setup (required)
@@ -33,98 +33,89 @@ import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
 </NexxusProvider>
 ```
 
-> 📖 For detailed theming documentation including design tokens, color palettes, typography, and semantic tokens, see the [Nexxus Theming Guide](./nexxus-theming.md).
+> For detailed theming documentation including design tokens, color palettes, typography, theme variants, and i18n, see the [Nexxus Theming Guide](./nexxus-theming.md).
 
 ---
 
-## PSP Component Usage
+## PSP List Component
+
+The `PSPComponent` renders configured and available PSPs with configuration, status toggling, and navigation support.
+
+### Basic Usage
 
 ```tsx
-import { PSP } from "@nexxus/psp";
+import { PSPComponent } from "@nexxus/psp";
 
-<PSP
-  domain="https://crm-api.io"
-  header={{ BRAND: "<your-id>" }}
-  flowTypeId='ftp_001'
-  onPspCardClick={(pspData) => {
-    console.log("Selected PSP:", pspData);
+<PSPComponent
+  baseURL="https://api.example.com/nexxus/v1"
+  brand="your-brand-id"
+  environment="your-env-id"
+  flowTypeId="ftp_001"
+  onNavigate={(path, params, search) => {
+    console.log("Navigate:", path, params);
   }}
-/>;
+/>
 ```
 
 ### Component Props
 
 | Prop | Type | Required | Description |
 | --- | --- | --- | --- |
-| `domain` | `string` | Yes | Base API domain (e.g., `https://crm-api.io`). |
-| `header` | `object` | No | Optional headers such as `BRAND` or auth tokens. |
-| `flowTypeId`  | `string` | Yes | Flow Type Id is required
-| `onPspCardClick` | `(psp) => void` | Yes | Fired when a PSP card is clicked; receives PSP data. |
+| `client` | `QueryClient` | No | Custom TanStack Query client. Uses internal client if omitted. |
+| `baseURL` | `string` | No | API base URL (e.g., `https://api.example.com/nexxus/v1`). |
+| `secretToken` | `string` | No | API authentication token. Sent as `X-SECRET-TOKEN` header. |
+| `flowTypeId` | `string` | No | Flow type ID to scope PSP listing. |
+| `flowTypeName` | `string` | No | Display name for the flow type. |
+| `onNavigate` | `(path, params?, search?) => void` | No | Navigation callback when PSP card or detail link is clicked. |
 
-### `onPspCardClick` payload
+### Navigation Callback
 
-```json
-{
-  "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd",
-  "name": "BridgerPay",
-  "description": null,
-  "logo": "https://cdn.brandfetch.io/idqRBSVze5/theme/dark/logo.svg",
-  "status": "ENABLED",
-  "brandId": "brn_001",
-  "environmentId": "env_uat_001",
-  "flowTargetId": "ftg_bridgerpay_001",
-  "createdAt": "2025-11-17T14:49:35",
-  "updatedAt": "2025-11-17T14:49:35",
-  "createdBy": "usr_fi_001",
-  "updatedBy": "usr_fi_001",
-  "riskRules": null,
-  "feeRules": null,
-  "transactionLimits": null
-}
+The `onNavigate` callback receives the target path and optional route parameters, allowing integration with any router:
+
+```tsx
+onNavigate={(path, params, search) => {
+  // path: e.g., "/psp/:pspId"
+  // params: e.g., { pspId: "psp_XM4A6OR9UGyikYRfKczNs0DzQd" }
+  router.navigate({ to: path, params, search });
+}}
 ```
 
 ---
 
-## API Integration Flow (handled internally)
+## PSP Details Component
 
-The PSP component orchestrates these API calls in sequence:
+The `PSPDetailsComponent` renders a full PSP detail page with tabs for Configuration, Fees, Limits, Risk Rules, Security, and Operations.
 
+### Basic Usage
 
-### Get PSPs
+```tsx
+import { PSPDetailsComponent } from "@nexxus/psp";
 
-`GET /api/v1/psps`
-
-Retrieves enabled PSPs to render as selectable cards.
-
-```json
-[
-  {
-    "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd",
-    "name": "BridgerPay",
-    "logo": "https://cdn.brandfetch.io/idqRBSVze5/theme/dark/logo.svg",
-    "status": "ENABLED",
-    "flowTargetId": "ftg_bridgerpay_001"
-  }
-]
+<PSPDetailsComponent
+  baseURL="https://api.example.com/nexxus/v1"
+  pspId="psp_XM4A6OR9UGyikYRfKczNs0DzQd"
+  onNavigate={(path, params) => router.navigate({ to: path, params })}
+/>
 ```
 
-### Get Flow Targets by Flow Type
+### Component Props
 
-`GET /api/v1/flow-types/{flowTypeId}/flow-targets`
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| `client` | `QueryClient` | No | Custom TanStack Query client. |
+| `baseURL` | `string` | No | API base URL. |
+| `secretToken` | `string` | No | API authentication token. |
+| `pspId` | `string` | Yes | The PSP ID to display details for. |
+| `onNavigate` | `(path, params?) => void` | No | Navigation callback for detail page links. |
 
-Provides PSP configuration metadata: supported actions, credential schema, currencies, countries, and payment methods.
+### Detail Page Tabs
 
-```json
-{
-  "id": "ftg_ZMkOAGcA84x61ufgmV2yNNxqgj",
-  "name": "VirtualPay",
-  "credentialSchema": { "required": ["mid", "apiKey", "privateKey"] },
-  "supportedActions": [{ "flowActionName": "DEPOSIT" }],
-  "currencies": ["USD"],
-  "countries": ["US", "CA", "GB"],
-  "paymentMethods": ["credit_card", "debit_card", "digital_wallet"]
-}
-```
+- **Configuration** - PSP metadata, supported actions, currencies, countries, payment methods
+- **Fees** - Fee rules associated with this PSP
+- **Limits** - Transaction limits for this PSP
+- **Risk Rules** - Risk rules applied to this PSP
+- **Security** - Credentials management
+- **Operations** - PSP operational settings
 
 ---
 
@@ -132,19 +123,32 @@ Provides PSP configuration metadata: supported actions, credential schema, curre
 
 ```tsx
 import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
-import { PSP } from "@nexxus/psp";
+import { PSPComponent, PSPDetailsComponent } from "@nexxus/psp";
 
 export default function App() {
+  const [selectedPspId, setSelectedPspId] = useState<string | null>(null);
+
   return (
     <NexxusProvider value={nexxusThemeSystem}>
-      <PSP
-        domain="https://crm-api.io"
-        header={{ BRAND: "your-brand-id" }}
-        flowTypeId='ftp_001'
-        onPspCardClick={(psp) => {
-          console.log("Selected PSP:", psp);
-        }}
-      />
+      {selectedPspId ? (
+        <PSPDetailsComponent
+          baseURL="https://api.example.com/nexxus/v1"
+          pspId={selectedPspId}
+          onNavigate={(path, params) => {
+            // handle navigation
+          }}
+        />
+      ) : (
+        <PSPComponent
+          baseURL="https://api.example.com/nexxus/v1"
+          brand="your-brand-id"
+          environment="your-env-id"
+          flowTypeId="ftp_001"
+          onNavigate={(path, params) => {
+            if (params?.pspId) setSelectedPspId(params.pspId);
+          }}
+        />
+      )}
     </NexxusProvider>
   );
 }
@@ -152,162 +156,95 @@ export default function App() {
 
 ---
 
+## API Integration (handled internally)
+
+### PSP Service
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `getConfiguredPSPs` | `GET /psps` | List configured PSPs |
+| `getConfiguredPSPById` | `GET /psps/brand/{brandId}/environment/{envId}/{pspId}` | Get configured PSP details |
+| `getPSPDetails` | `GET /psps/{pspId}` | Get full PSP details |
+| `createPSP` | `POST /psps` | Configure a new PSP |
+| `updatePSP` | `PUT /psps/{pspId}` | Update PSP configuration |
+| `updatePSPStatus` | `PUT /psps/{pspId}/{status}` | Enable/disable PSP |
+| `updatePSPCredentials` | `PUT /psps/{pspId}` | Update PSP credentials |
+| `updateSupportedCurrencies` | `PUT /psps/{pspId}/supported-currencies` | Update supported currencies |
+| `getCurrencies` | `GET /psps/currencies` | List available currencies |
+| `getCountries` | `GET /psps/countries` | List available countries |
+
+### Flow Target Service
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `getFlowTargets` | `GET /flow-types/{flowTypeId}/flow-targets` | Get available PSP integrations |
+| `getFlowTargetsByBrand` | `GET /flow-types/{flowTypeId}/flow-targets` | Get brand-scoped flow targets |
+
+### Related Data (on PSP Details page)
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /fees/psp/{pspId}` | Fee rules for this PSP |
+| `GET /transaction-limits/psp/{pspId}` | Transaction limits for this PSP |
+| `GET /risk-rules/psp/{pspId}` | Risk rules for this PSP |
+
+---
+
+## API Configuration
+
+All Nexxus components use `@nexxus/api-services` internally. The `baseURL` and authentication are configured automatically from component props:
+
+```tsx
+// Props-based configuration (recommended)
+<PSPComponent
+  baseURL="https://api.example.com/nexxus/v1"
+  secretToken="your-secret-token"
+  brand="your-brand-id"
+  environment="your-env-id"
+/>
+```
+
+Headers sent automatically:
+
+| Header | Source |
+| --- | --- |
+| `X-BRAND-ID` | `brand` or `brandId` prop |
+| `X-ENV-ID` | `environment` or `environmentId` prop |
+| `X-SECRET-TOKEN` | `secretToken` prop |
+
+---
+
 ## UI Preview
 
-### Enabled PSPs list:
+### Configured PSPs list
 
 ![Enabled PSPs](../assets/psp-component-1.png)
 
-### Available PSPs list:
+### Available PSPs list
 
 ![Available PSPs](../assets/psp-component.png)
 
-### Available PSPs Details Modal:
+### PSP Details Modal
 
 ![Available PSPs Details](../assets/psp-component-2.png)
 
-### PSPs Configure Modal:
+### PSP Configure Modal
 
-![Available PSPs Details](../assets/psp-component-3.png)
+![PSP Configure](../assets/psp-component-3.png)
 
----
+### PSP Details Page
 
-## Nexxus PSP Details Component
+![PSP Details](../assets/psp-details.png)
 
-Use `@nexxus/psp-details` to view a single PSP and navigate to limits, fees, or risk rule pages.
+### Credentials Modal
 
-### Install
+![Credentials](../assets/psp-details-7.png)
 
-```bash
-npm install @nexxus/psp-details
-```
+### Detail Tabs
 
-### Basic Usage
-
-```tsx
-import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
-import { PSPDetails } from "@nexxus/psp-details";
-
-function PspDetailsPage() {
-  return (
-    <NexxusProvider value={nexxusThemeSystem}>
-      <PSPDetails
-        domain="https://crm-api.io"
-        header={{ BRAND: "your-brand-id" }}
-        redirectUrl={{
-          limits: "/limits",
-          fees: "/fees",
-          risk: "/risk"
-        }}
-      />
-    </NexxusProvider>
-  );
-}
-```
-
-### Props
-
-| Prop | Type | Required | Description |
-| --- | --- | --- | --- |
-| `domain` | `string` | Yes | Base API domain (e.g., `https://crm-api.io`). |
-| `header` | `object` | No | Optional headers such as `BRAND` or auth tokens. |
-| `redirectUrl` | `object` | No | Destinations for CTA buttons: `{ limits, fees, risk }`. |
-
----
-
-## API References (used by PSP Details)
-
-### Get PSP By Id
-`GET /api/v1/psps/{pspId}`
-
-Returns PSP metadata, credential schema, supported actions, and flow target info.
-
-```json
-{
-  "data": {
-    "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd",
-    "name": "BridgerPay",
-    "logo": "https://cdn.brandfetch.io/idqRBSVze5/theme/dark/logo.svg",
-    "status": "ENABLED",
-    "flowTarget": {
-      "currencies": ["USD", "EUR", "GBP"],
-      "countries": ["US", "CA", "GB", "EU"],
-      "paymentMethods": ["credit_card", "debit_card", "digital_wallet"],
-      "supportedActions": [{ "flowActionName": "DEPOSIT" }]
-    }
-  }
-}
-```
-
-### Get Transaction Limits
-`GET /api/v1/transaction-limits/psp/{pspId}`
-
-```json
-{
-  "data": [
-    {
-      "name": "Nexxuss",
-      "currency": "KES",
-      "pspActions": [
-        { "flowActionName": "DEPOSIT", "minAmount": 10, "maxAmount": 100 },
-        { "flowActionName": "WITHDRAW", "minAmount": 10, "maxAmount": 1000 }
-      ],
-      "psps": [{ "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd", "name": "BridgerPay" }]
-    }
-  ]
-}
-```
-
-### Get Fees
-`GET /api/v1/fees/psp/{pspId}`
-
-```json
-{
-  "data": [
-    {
-      "name": "Process fees",
-      "currency": "USD",
-      "chargeFeeType": "INCLUSIVE",
-      "components": [{ "type": "FIXED", "amount": 10 }],
-      "psps": [{ "id": "psp_5SYGziwRArbxGDeRpWKgHVd6HE", "name": "SticPay" }]
-    }
-  ]
-}
-```
-
-### Get Risk Rules
-`GET /api/v1/risk-rules/psp/{pspId}`
-
-```json
-{
-  "data": [
-    {
-      "name": "Nexxus",
-      "type": "CUSTOMER",
-      "action": "BLOCK",
-      "criteriaType": "TAG",
-      "criteriaValue": ["VIP"],
-      "flowActionName": "DEPOSIT",
-      "psps": [{ "id": "psp_5SYGziwRArbxGDeRpWKgHVd6HE", "name": "SticPay" }]
-    }
-  ]
-}
-```
-
-## UI Preview
-
-### Available PSPs list:
-
-![Available PSPs](../assets/psp-details.png)
-
-### Credentials Modal:
-
-![Available PSPs](../assets/psp-details-7.png)
-
-### Tabs:
-![Tabs PSPs](../assets/psp-details-1.png)
-![Tabs PSPs](../assets/psp-details-6.png)
-![Tabs PSPs](../assets/psp-details-2.png)
-![Tabs PSPs](../assets/psp-details-3.png)
-![Tabs PSPs](../assets/psp-details-4.png)
-![Tabs PSPs](../assets/psp-details-5.png)
+![Tabs](../assets/psp-details-1.png)
+![Tabs](../assets/psp-details-6.png)
+![Tabs](../assets/psp-details-2.png)
+![Tabs](../assets/psp-details-3.png)
+![Tabs](../assets/psp-details-4.png)
+![Tabs](../assets/psp-details-5.png)

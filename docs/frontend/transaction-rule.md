@@ -1,13 +1,13 @@
-# Transaction Rule Component
+# Transaction Limits Component
 
-Plug-and-play React component to manage transaction limits and rules for PSPs using Nexxus APIs.
+Plug-and-play React component to manage transaction limits per flow action, currency, country, and customer tag using Nexxus APIs.
 
 ---
 
 ## Installation
 
 ```bash
-npm install @nexxus/transaction-rule
+npm install @nexxus/transaction-component
 ```
 
 ---
@@ -15,12 +15,14 @@ npm install @nexxus/transaction-rule
 ## Basic Usage
 
 ```tsx
-import { TransactionRule } from "@nexxus/transaction-rule";
+import TransactionLimitsComponent from "@nexxus/transaction-component";
 
-<TransactionRule
-  domain="https://crm-api.io"
-  header={{ BRAND: "<your-id>" }}
-/>;
+<TransactionLimitsComponent
+  baseURL="https://api.example.com/nexxus/v1"
+  brand="your-brand-id"
+  environment="your-env-id"
+  flowTypeId="ftp_001"
+/>
 ```
 
 ---
@@ -29,8 +31,16 @@ import { TransactionRule } from "@nexxus/transaction-rule";
 
 | Prop | Type | Required | Description |
 | --- | --- | --- | --- |
-| `domain` | `string` | Yes | Base API domain (e.g., `https://crm-api.io`). |
-| `header` | `object` | No | Optional headers such as `BRAND` or auth tokens. |
+| `client` | `QueryClient` | No | Custom TanStack Query client. Uses internal client if omitted. |
+| `domain` | `string` | No | Base API domain. Alias for `baseURL`. |
+| `baseURL` | `string` | No | API base URL (e.g., `https://api.example.com/nexxus/v1`). |
+| `secretToken` | `string` | No | API authentication token. Sent as `X-SECRET-TOKEN` header. |
+| `header` | `Record<string, string>` | No | Custom headers (e.g., `{ 'X-BRAND-ID': '...' }`). |
+| `brand` | `string` | No | Brand identifier. Alias for `brandId`. |
+| `brandId` | `string` | No | Brand ID for API scoping. |
+| `environment` | `string` | No | Environment identifier. Alias for `environmentId`. |
+| `environmentId` | `string` | No | Environment ID for API scoping. |
+| `flowTypeId` | `string` | No | Flow type ID to scope transaction limits and load flow actions. |
 
 ---
 
@@ -38,14 +48,16 @@ import { TransactionRule } from "@nexxus/transaction-rule";
 
 ```tsx
 import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
-import { TransactionRule } from "@nexxus/transaction-rule";
+import TransactionLimitsComponent from "@nexxus/transaction-component";
 
-export default function TransactionRulePage() {
+export default function TransactionLimitsPage() {
   return (
     <NexxusProvider value={nexxusThemeSystem}>
-      <TransactionRule
-        domain="https://crm-api.io"
-        header={{ BRAND: "your-brand-id" }}
+      <TransactionLimitsComponent
+        baseURL="https://api.example.com/nexxus/v1"
+        brand="your-brand-id"
+        environment="your-env-id"
+        flowTypeId="ftp_001"
       />
     </NexxusProvider>
   );
@@ -54,80 +66,105 @@ export default function TransactionRulePage() {
 
 ---
 
-## API Integration Flow (handled internally)
+## Sub-Components
 
-The TransactionRule component orchestrates these API calls:
+| Component | Description |
+| --- | --- |
+| `TransactionLimitList` | Table view with search, create/edit/delete actions |
+| `TransactionLimitForm` | Form for creating or editing a transaction limit |
+| `TransactionLimitModal` | Modal wrapper around `TransactionLimitForm` |
+| `useTableColumns` | Hook that returns table column definitions |
 
-### Get Transaction Limits
+---
 
-`GET /api/v1/transaction-limits`
+## Form Fields
 
-Retrieves all transaction limits.
+### Basic Details
 
-```json
-{
-  "data": [
-    {
-      "id": "txl_001",
-      "name": "Standard Limits",
-      "currency": "USD",
-      "pspActions": [
-        { "flowActionName": "DEPOSIT", "minAmount": 10, "maxAmount": 10000 },
-        { "flowActionName": "WITHDRAW", "minAmount": 10, "maxAmount": 5000 }
-      ],
-      "psps": [
-        { "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd", "name": "BridgerPay" }
-      ],
-      "createdAt": "2025-01-15T10:30:00",
-      "updatedAt": "2025-01-15T10:30:00"
-    }
-  ]
-}
-```
+| Field | Type | Component | Validation |
+| --- | --- | --- | --- |
+| `name` | `string` | Input | Required, max 100 chars |
+| `currency` | `string` | Select | Required. Options from Currencies API. |
+| `countries` | `string[]` | MultiSelect | At least 1. Options from Countries API. |
+| `tags` | `string[]` | MultiSelect | At least 1. Predefined customer tag options. |
 
-### Get Transaction Limits by PSP
+### Customer Tags
 
-`GET /api/v1/transaction-limits/psp/{pspId}`
+| Value | Label |
+| --- | --- |
+| `Banned` | Banned |
+| `VIP` | VIP |
+| `Important` | Important |
+| `Premium` | Premium |
+| `Standard` | Standard |
+| `New Customer` | New Customer |
 
-Retrieves transaction limits for a specific PSP.
+### Limits (dynamic per flow action)
 
-```json
-{
-  "data": [
-    {
-      "name": "Nexxuss",
-      "currency": "KES",
-      "pspActions": [
-        { "flowActionName": "DEPOSIT", "minAmount": 10, "maxAmount": 100 },
-        { "flowActionName": "WITHDRAW", "minAmount": 10, "maxAmount": 1000 }
-      ],
-      "psps": [{ "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd", "name": "BridgerPay" }]
-    }
-  ]
-}
-```
+For each flow action returned by the API (e.g., DEPOSIT, WITHDRAW), the form renders:
 
-### Create Transaction Limit
+| Field | Type | Component | Validation |
+| --- | --- | --- | --- |
+| `{action}MinAmount` | `number` | NumberInput | Required, positive, must be < maxAmount |
+| `{action}MaxAmount` | `number` | NumberInput | Required, positive, must be > minAmount |
 
-`POST /api/v1/transaction-limits`
+### PSP Configuration
 
-Creates a new transaction limit rule.
+| Field | Type | Component | Validation |
+| --- | --- | --- | --- |
+| `psps` | `string[]` | MultiSelect | At least 1. Options from configured PSPs API. |
 
-**Request Body:**
+---
+
+## Table Columns
+
+| Column | Field | Description |
+| --- | --- | --- |
+| Name | `name` | Limit rule name |
+| Currency | `currency` | Currency code |
+| Country | `countries` | Applicable countries |
+| PSP | `psps` | Associated PSPs |
+| Deposit | derived | Min-Max for DEPOSIT action |
+| Withdrawal | derived | Min-Max for WITHDRAW action |
+| Created On | `createdAt` | Creation timestamp |
+| Actions | - | Edit / delete buttons |
+
+---
+
+## API Integration (handled internally)
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| `getTransactionLimits` | `GET /transaction-limits` | List all transaction limits |
+| `getTransactionLimitById` | `GET /transaction-limits/{id}` | Get limit by ID (for edit) |
+| `createTransactionLimit` | `POST /transaction-limits` | Create a new transaction limit |
+| `updateTransactionLimit` | `PUT /transaction-limits/{id}` | Update an existing limit |
+| `deleteTransactionLimit` | `DELETE /transaction-limits/{id}` | Delete a transaction limit |
+| `getFlowActions` | `GET /flow-types/{flowTypeId}/flow-actions` | Load flow actions for dynamic limit fields |
+| `getCurrencies` | `GET /psps/currencies` | Load available currencies |
+| `getCountries` | `GET /psps/countries` | Load available countries |
+| `getConfiguredPSPs` | `GET /psps` | Load configured PSPs |
+
+### Example API Payloads
+
+**Create Transaction Limit:**
 
 ```json
 {
   "name": "Premium Limits",
   "currency": "USD",
+  "countries": ["US", "CA"],
+  "customerTags": ["VIP", "Premium"],
+  "status": "ENABLED",
   "pspActions": [
-    { "flowActionName": "DEPOSIT", "minAmount": 100, "maxAmount": 50000 },
-    { "flowActionName": "WITHDRAW", "minAmount": 50, "maxAmount": 25000 }
+    { "flowActionId": "fa_deposit_001", "minAmount": 100, "maxAmount": 50000 },
+    { "flowActionId": "fa_withdraw_001", "minAmount": 50, "maxAmount": 25000 }
   ],
-  "pspIds": ["psp_XM4A6OR9UGyikYRfKczNs0DzQd"]
+  "psps": [{ "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd" }]
 }
 ```
 
-**Response:**
+**Transaction Limit Response:**
 
 ```json
 {
@@ -135,9 +172,12 @@ Creates a new transaction limit rule.
     "id": "txl_002",
     "name": "Premium Limits",
     "currency": "USD",
+    "countries": ["US", "CA"],
+    "customerTags": ["VIP", "Premium"],
+    "status": "ENABLED",
     "pspActions": [
-      { "flowActionName": "DEPOSIT", "minAmount": 100, "maxAmount": 50000 },
-      { "flowActionName": "WITHDRAW", "minAmount": 50, "maxAmount": 25000 }
+      { "flowActionId": "fa_deposit_001", "minAmount": 100, "maxAmount": 50000 },
+      { "flowActionId": "fa_withdraw_001", "minAmount": 50, "maxAmount": 25000 }
     ],
     "psps": [{ "id": "psp_XM4A6OR9UGyikYRfKczNs0DzQd", "name": "BridgerPay" }],
     "createdAt": "2025-01-15T10:30:00",
@@ -146,18 +186,6 @@ Creates a new transaction limit rule.
 }
 ```
 
-### Update Transaction Limit
-
-`PUT /api/v1/transaction-limits/{id}`
-
-Updates an existing transaction limit rule.
-
-### Delete Transaction Limit
-
-`DELETE /api/v1/transaction-limits/{id}`
-
-Deletes a transaction limit rule.
-
 ---
 
 ## Transaction Limit Object
@@ -165,19 +193,33 @@ Deletes a transaction limit rule.
 | Field | Type | Description |
 | --- | --- | --- |
 | `id` | `string` | Unique identifier |
+| `version` | `number` | Record version |
 | `name` | `string` | Rule name |
+| `brandId` | `string` | Brand ID |
+| `environmentId` | `string` | Environment ID |
 | `currency` | `string` | Currency code (e.g., USD, EUR) |
-| `pspActions` | `array` | Array of action limits |
-| `pspActions[].flowActionName` | `string` | Action type: `DEPOSIT`, `WITHDRAW` |
+| `countries` | `string[]` | Applicable countries |
+| `customerTags` | `string[]` | Customer tag filters |
+| `status` | `'ENABLED' \| 'DISABLED'` | Rule status |
+| `pspActions` | `PSPAction[]` | Per-action limit definitions |
+| `pspActions[].flowActionId` | `string` | Flow action ID |
 | `pspActions[].minAmount` | `number` | Minimum transaction amount |
 | `pspActions[].maxAmount` | `number` | Maximum transaction amount |
-| `psps` | `array` | Associated PSPs |
+| `psps` | `{ id, name }[]` | Associated PSPs |
 | `createdAt` | `string` | Creation timestamp |
 | `updatedAt` | `string` | Last update timestamp |
 
 ---
 
+## i18n
+
+The transaction component registers translations under the `transactionLimits` namespace. Supported languages: `en`, `es`, `ar`.
+
+Key sections: `transactionLimits.form.*`, `transactionLimits.tags.*`, `transactionLimits.modals.*`, `transactionLimits.validation.*`, `transactionLimits.messages.*`.
+
+---
+
 ## UI Preview
 
-![Transaction Rule View 1](../assets/transaction-rule-1.png)
-![Transaction Rule View 2](../assets/transaction-rule-2.png)
+![Transaction Limit View 1](../assets/transaction-rule-1.png)
+![Transaction Limit View 2](../assets/transaction-rule-2.png)
