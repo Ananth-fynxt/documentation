@@ -41,6 +41,7 @@ import RoutingComponent from "@nexxus/routing-component";
 | `environment` | `string` | No | Environment identifier. Alias for `environmentId`. |
 | `environmentId` | `string` | No | Environment ID for API scoping. |
 | `flowTypeId` | `string` | No | Flow type ID to scope routing rules. |
+| `language` | `string` | No | UI language. Built-ins: `'en' \| 'es' \| 'ar'`; register more via `NexxusProvider`'s `translations` prop. Omit to keep the current/detected language. |
 
 ---
 
@@ -52,7 +53,7 @@ import RoutingComponent from "@nexxus/routing-component";
 
 export default function RoutingRulePage() {
   return (
-    <NexxusProvider value={nexxusThemeSystem}>
+    <NexxusProvider theme={nexxusThemeSystem}>
       <RoutingComponent
         baseURL="https://api.example.com/nexxus/v1"
         brand="your-brand-id"

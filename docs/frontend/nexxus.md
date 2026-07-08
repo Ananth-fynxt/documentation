@@ -23,17 +23,19 @@ npm install @nexxus/react @nexxus/psp
 
 ## Global Theme Setup (required)
 
-Wrap your application with the Nexxus provider for consistent theming:
+Wrap your application with the Nexxus provider for consistent theming. The theme system is passed via the `theme` prop (optional — omit to use the base `nexxus` system):
 
 ```tsx
 import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
 
-<NexxusProvider value={nexxusThemeSystem}>
+<NexxusProvider theme={nexxusThemeSystem}>
   {/* your app */}
 </NexxusProvider>
 ```
 
-> For detailed theming documentation including design tokens, color palettes, typography, theme variants, and i18n, see the [Nexxus Theming Guide](./nexxus-theming.md).
+> **Migration note:** the provider prop changed from `value` to `theme`. Widgets render inside a Shadow DOM for style isolation by default.
+
+> For detailed theming documentation including design tokens, color palettes, typography, theme variants, the advanced `createNexxusSystem` config, and i18n, see the [Nexxus Theming Guide](./nexxus-theming.md).
 
 ---
 
@@ -66,7 +68,10 @@ import { PSPComponent } from "@nexxus/psp";
 | `secretToken` | `string` | No | API authentication token. Sent as `X-SECRET-TOKEN` header. |
 | `flowTypeId` | `string` | No | Flow type ID to scope PSP listing. |
 | `flowTypeName` | `string` | No | Display name for the flow type. |
+| `language` | `string` | No | UI language. Built-ins: `'en' \| 'es' \| 'ar'`; any other language works when its bundles are registered via `NexxusProvider`'s `translations` prop. Omit to keep the current/detected language. |
 | `onNavigate` | `(path, params?, search?) => void` | No | Navigation callback when PSP card or detail link is clicked. |
+
+> The `language` prop is forwarded to the shared i18n instance via `useComponentLanguage`. To supply languages beyond the built-ins (e.g. Hindi), register their bundles with `NexxusProvider`'s `translations` prop — see the [Theming Guide i18n section](./nexxus-theming.md#app-provided-languages-eg-hindi).
 
 ### Navigation Callback
 
@@ -106,6 +111,7 @@ import { PSPDetailsComponent } from "@nexxus/psp";
 | `baseURL` | `string` | No | API base URL. |
 | `secretToken` | `string` | No | API authentication token. |
 | `pspId` | `string` | Yes | The PSP ID to display details for. |
+| `language` | `string` | No | UI language (same semantics as on `PSPComponent`). |
 | `onNavigate` | `(path, params?) => void` | No | Navigation callback for detail page links. |
 
 ### Detail Page Tabs
@@ -116,6 +122,14 @@ import { PSPDetailsComponent } from "@nexxus/psp";
 - **Risk Rules** - Risk rules applied to this PSP
 - **Security** - Credentials management
 - **Operations** - PSP operational settings
+
+### Editing the Description
+
+The PSP details page includes an inline **rich-text description editor**. Click the pencil icon next to the **Description** heading to open the editor modal, which is built on [Tiptap](https://tiptap.dev/) (`@tiptap/react` + `StarterKit`) with a toolbar for bold, italic, underline, strikethrough, ordered/bullet lists, and undo/redo.
+
+- Input and output HTML are **sanitized** (script/style/iframe tags, `on*` handlers, and `javascript:` URLs are stripped) before rendering or saving.
+- Saving reuses the existing PSP update mutation (`usePSPDetailsUpdateMutation`) — the edited description is merged into the PSP payload, persisted via `PUT /psps/{pspId}`, and the query cache is updated optimistically.
+- The stored HTML is rendered safely on the details page (sanitized, not shown as literal tags). An empty editor saves an empty description rather than empty markup.
 
 ---
 
@@ -129,7 +143,7 @@ export default function App() {
   const [selectedPspId, setSelectedPspId] = useState<string | null>(null);
 
   return (
-    <NexxusProvider value={nexxusThemeSystem}>
+    <NexxusProvider theme={nexxusThemeSystem}>
       {selectedPspId ? (
         <PSPDetailsComponent
           baseURL="https://api.example.com/nexxus/v1"

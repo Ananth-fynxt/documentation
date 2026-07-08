@@ -19,7 +19,7 @@ Welcome to the Fynxt Frontend documentation. Nexxus provides plug-and-play React
       </ul>
     </div>
     <div class="library-actions">
-      <a href="/frontend/nexxus" class="library-link">View Documentation</a>
+      <a href="/documentation/frontend/nexxus" class="library-link">View Documentation</a>
     </div>
   </div>
 
@@ -37,7 +37,7 @@ Welcome to the Fynxt Frontend documentation. Nexxus provides plug-and-play React
       </ul>
     </div>
     <div class="library-actions">
-      <a href="/frontend/fee-rule" class="library-link">View Documentation</a>
+      <a href="/documentation/frontend/fee-rule" class="library-link">View Documentation</a>
     </div>
   </div>
 
@@ -55,7 +55,7 @@ Welcome to the Fynxt Frontend documentation. Nexxus provides plug-and-play React
       </ul>
     </div>
     <div class="library-actions">
-      <a href="/frontend/risk-rule" class="library-link">View Documentation</a>
+      <a href="/documentation/frontend/risk-rule" class="library-link">View Documentation</a>
     </div>
   </div>
 
@@ -73,7 +73,7 @@ Welcome to the Fynxt Frontend documentation. Nexxus provides plug-and-play React
       </ul>
     </div>
     <div class="library-actions">
-      <a href="/frontend/routing-rule" class="library-link">View Documentation</a>
+      <a href="/documentation/frontend/routing-rule" class="library-link">View Documentation</a>
     </div>
   </div>
 
@@ -91,7 +91,7 @@ Welcome to the Fynxt Frontend documentation. Nexxus provides plug-and-play React
       </ul>
     </div>
     <div class="library-actions">
-      <a href="/frontend/transaction-rule" class="library-link">View Documentation</a>
+      <a href="/documentation/frontend/transaction-rule" class="library-link">View Documentation</a>
     </div>
   </div>
 
@@ -109,7 +109,7 @@ Welcome to the Fynxt Frontend documentation. Nexxus provides plug-and-play React
       </ul>
     </div>
     <div class="library-actions">
-      <a href="/frontend/webhook" class="library-link">View Documentation</a>
+      <a href="/documentation/frontend/webhook" class="library-link">View Documentation</a>
     </div>
   </div>
 </div>
@@ -129,7 +129,7 @@ import { NexxusProvider, nexxusThemeSystem } from "@nexxus/react";
 
 function App() {
   return (
-    <NexxusProvider value={nexxusThemeSystem}>
+    <NexxusProvider theme={nexxusThemeSystem}>
       {/* your app */}
     </NexxusProvider>
   );
@@ -148,6 +148,12 @@ import { PSPComponent } from "@nexxus/psp";
   flowTypeId="ftp_001"
 />
 ```
+
+## Guides
+
+- [NexxusProvider](./nexxus-provider) — the required wrapper: theme resolution, Shadow DOM isolation, i18n registration, and toasts.
+- [Theming](./nexxus-theming) — design tokens, theme variants, the advanced `createNexxusSystem` config, Shadow DOM isolation, and i18n (including app-provided languages).
+- [Dev Sandbox & Samples](./dev-sandbox) — ready-to-copy sample files (`vite.config.ts`, `App.tsx`, `custom-theme.ts`, `translations/hi.ts`) for theme wiring, language props, and API proxying.
 
 ## Package List
 

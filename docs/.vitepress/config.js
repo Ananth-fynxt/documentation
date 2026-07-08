@@ -268,6 +268,10 @@ export default defineConfig({
               link: '/frontend/nexxus'
             },
             {
+              text: 'NexxusProvider',
+              link: '/frontend/nexxus-provider'
+            },
+            {
               text: 'Theming',
               link: '/frontend/nexxus-theming'
             },
@@ -286,6 +290,14 @@ export default defineConfig({
             {
               text: 'Fee Rule',
               link: '/frontend/fee-rule'
+            },
+            {
+              text: 'Webhook',
+              link: '/frontend/webhook'
+            },
+            {
+              text: 'Dev Sandbox & Samples',
+              link: '/frontend/dev-sandbox'
             }
           ]
         }
