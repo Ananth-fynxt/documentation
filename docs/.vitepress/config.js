@@ -46,16 +46,9 @@ export default defineConfig({
     },
     nav: [
       { text: 'Home', link: '/' },
-      {
-        text: 'API Documentation',
-        items: [
-          { text: 'Nexxus', link: '/psp/' },
-          { text: 'Connxt', link: '/connxt/' }
-        ]
-      },
+      { text: 'Platform Guide', link: '/nexxus/' },
       { text: 'Backend Library', link: '/backend/' },
-      { text: 'Frontend Library', link: '/frontend/' },
-      { text: 'Platform Guide', link: '/nexxus/' }
+      { text: 'Frontend Library', link: '/frontend/' }
     ],
     sidebar: {
       '/backend/': [
@@ -291,29 +284,6 @@ export default defineConfig({
           ]
         }
       ],
-      '/psp/': [
-        {
-          text: 'PSP Transaction Flow',
-          items: [
-            { text: 'Overview', link: '/psp/' },
-            { text: 'Quick Start', link: '/psp/quick-start' },
-            { text: 'API Reference', link: '/psp/api-reference' },
-            { text: 'Error Handling', link: '/psp/error-handling' },
-            { text: 'Best Practices', link: '/psp/best-practices' }
-          ]
-        }
-      ],
-      '/connxt/': [
-        {
-          text: 'Connxt API V2',
-          items: [
-            { text: 'Overview', link: '/connxt/' },
-            { text: 'Quick Start', link: '/connxt/quick-start' },
-            { text: 'API Reference', link: '/connxt/api-reference' },
-            { text: 'Error Handling', link: '/connxt/error-handling' }
-          ]
-        }
-      ],
       '/nexxus/': [
         {
           text: 'Nexxus Platform Guide',
@@ -328,7 +298,8 @@ export default defineConfig({
             { text: 'Flow Engine & Deno VM', link: '/nexxus/flow-denovm' },
             { text: 'Transaction Lifecycle', link: '/nexxus/transaction' },
             { text: 'External API & Webhooks', link: '/nexxus/external-api' },
-            { text: 'Frontend Architecture', link: '/nexxus/frontend' }
+            { text: 'Frontend Architecture', link: '/nexxus/frontend' },
+            { text: 'CRM / External Integration', link: '/nexxus/integration' }
           ]
         }
       ]
