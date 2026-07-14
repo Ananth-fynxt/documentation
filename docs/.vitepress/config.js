@@ -54,7 +54,8 @@ export default defineConfig({
         ]
       },
       { text: 'Backend Library', link: '/backend/' },
-      { text: 'Frontend Library', link: '/frontend/' }
+      { text: 'Frontend Library', link: '/frontend/' },
+      { text: 'Platform Guide', link: '/nexxus/' }
     ],
     sidebar: {
       '/backend/': [
@@ -310,6 +311,24 @@ export default defineConfig({
             { text: 'Quick Start', link: '/connxt/quick-start' },
             { text: 'API Reference', link: '/connxt/api-reference' },
             { text: 'Error Handling', link: '/connxt/error-handling' }
+          ]
+        }
+      ],
+      '/nexxus/': [
+        {
+          text: 'Nexxus Platform Guide',
+          items: [
+            { text: 'Overview', link: '/nexxus/' },
+            { text: 'Coverage & Framework', link: '/nexxus/coverage' },
+            { text: 'Identity — FI & Users', link: '/nexxus/identity' },
+            { text: 'Brand & Tenancy', link: '/nexxus/brand' },
+            { text: 'Authentication & RBAC', link: '/nexxus/auth' },
+            { text: 'PSP & Fetch-PSP', link: '/nexxus/psp-fetch-psp' },
+            { text: 'Request & Persistence', link: '/nexxus/request' },
+            { text: 'Flow Engine & Deno VM', link: '/nexxus/flow-denovm' },
+            { text: 'Transaction Lifecycle', link: '/nexxus/transaction' },
+            { text: 'External API & Webhooks', link: '/nexxus/external-api' },
+            { text: 'Frontend Architecture', link: '/nexxus/frontend' }
           ]
         }
       ]
